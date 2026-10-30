@@ -154,7 +154,14 @@ LumenGram бесплатный. Платные возможности самог
 
 ## 🛠 Сборка из исходников
 
-К каждому релизу приложены архивы исходников.
+Код LumenGram лежит прямо в репозитории:
+
+| Папка | Что внутри |
+|---|---|
+| [`desktop/`](desktop) | `files/` — код LumenGram для Windows (`Telegram/SourceFiles/lumen`), иконки, темы и скрипты; `lumengram-desktop.patch` — правки в исходниках Telegram Desktop; `UPSTREAM.txt` — коммит Telegram Desktop, на котором основана версия |
+| [`android/`](android) | `files/` — изменённые и новые файлы (код LumenGram — `TMessagesProj/src/main/java/org/telegram/lumen`); `lumengram.patch` — правки в Telegram for Android; `UPSTREAM.txt`, `DELETED.txt`, `README.txt` — как собрать |
+
+Полные архивы исходников также приложены к каждому релизу.
 
 **Windows** (`LumenGram-<версия>-source.zip`) — полное дерево на основе Telegram Desktop. Сборка — как у [Telegram Desktop](https://github.com/telegramdesktop/tdesktop/blob/dev/docs/building-win-x64.md): Visual Studio 2022/2026, Qt и зависимости из `Libraries`, затем
 

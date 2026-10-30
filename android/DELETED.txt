@@ -1,0 +1,4 @@
+TMessagesProj/src/main/res/drawable-hdpi/notification.webp
+TMessagesProj/src/main/res/drawable-mdpi/notification.webp
+TMessagesProj/src/main/res/drawable-xhdpi/notification.webp
+TMessagesProj/src/main/res/drawable-xxhdpi/notification.webp
