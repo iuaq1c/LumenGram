@@ -1238,6 +1238,16 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         }
 
         // LumenGram profile banner: drawn under the avatar and the name, only in LumenGram.
+        public boolean hasLumenBannerImage() {
+            return lumenBannerUrl != null && lumenBanner.hasBitmapImage();
+        }
+
+        public void drawLumenFullBanner(Canvas canvas) {
+            final int height = fragmentView != null ? fragmentView.getMeasuredHeight() : getMeasuredHeight();
+            lumenBanner.setImageCoords(0, 0, getMeasuredWidth(), height);
+            lumenBanner.draw(canvas);
+        }
+
         public void updateLumenBanner() {
             lumenStyle = userId != 0 ? org.telegram.lumen.LumenProfiles.style(userId) : null;
             invalidate();
@@ -1262,7 +1272,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
             if (!hasImage && accent == null && effect == null) {
                 return false;
             }
-            if (hasImage) {
+            if (hasImage && isLumenFullBanner()) {
+                // Same crop as the picture behind the list, so the header continues into it
+                lumenHeaderBottom = bottom;
+                canvas.save();
+                canvas.clipRect(0, 0, getMeasuredWidth(), bottom);
+                drawLumenFullBanner(canvas);
+                canvas.restore();
+            } else if (hasImage) {
                 lumenBanner.setImageCoords(0, 0, getMeasuredWidth(), bottom);
                 lumenBanner.draw(canvas);
             } else if (accent != null) {
@@ -2148,6 +2165,46 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
         }
 
         scrimBlur3Factory.setLinkedViewsRef(new ReferenceList<>());
+    }
+
+    // LumenGram full-profile banner: the picture stays behind the list, the sections let it show through
+    private static final float LUMEN_BANNER_SCRIM = 0.45f;
+    private static final float LUMEN_SECTION_ALPHA = 0.72f;
+    private static final int LUMEN_SCRIM_FADE_DP = 160;
+    private int lumenHeaderBottom;
+    private final Paint lumenScrimPaint = new Paint();
+    private boolean lumenFullBannerApplied;
+
+    private boolean isLumenFullBanner() {
+        return topView != null && topView.hasLumenBannerImage() && org.telegram.lumen.LumenProfiles.fullBanner();
+    }
+
+    private void updateLumenFullBanner() {
+        lumenFullBannerApplied = isLumenFullBanner();
+        if (listView == null) {
+            return;
+        }
+        listView.setBackgroundColor(lumenFullBannerApplied ? 0 : getThemedColor(Theme.key_windowBackgroundGray));
+        listView.sectionBackgroundAlpha = lumenFullBannerApplied ? LUMEN_SECTION_ALPHA : 1f;
+        final int cellColor = lumenCellBackground();
+        for (int i = 0; i < listView.getChildCount(); i++) {
+            final View child = listView.getChildAt(i);
+            if (child.getBackground() instanceof android.graphics.drawable.ColorDrawable) {
+                child.setBackgroundColor(cellColor);
+            }
+            if (child instanceof AboutLinkCell) {
+                ((AboutLinkCell) child).noFades = lumenFullBannerApplied;
+                child.invalidate();
+            }
+        }
+        listView.invalidate();
+        if (fragmentView != null) {
+            fragmentView.invalidate();
+        }
+    }
+
+    private int lumenCellBackground() {
+        return lumenFullBannerApplied ? 0 : getThemedColor(Theme.key_windowBackgroundWhite);
     }
 
     private final org.telegram.lumen.LumenProfiles.Listener lumenProfilesListener = () -> {
@@ -3462,6 +3519,19 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 } else {
 //                    int top = searchListView.getTop();
 //                    canvas.drawRect(0, top + extraHeight + searchTransitionOffset, getMeasuredWidth(), top + getMeasuredHeight(), whitePaint);
+                }
+                final boolean lumenFull = isLumenFullBanner();
+                if (lumenFull != lumenFullBannerApplied) {
+                    AndroidUtilities.runOnUIThread(ProfileActivity.this::updateLumenFullBanner);
+                }
+                if (lumenFull && listView.getVisibility() == VISIBLE) {
+                    topView.drawLumenFullBanner(canvas);
+                    // The shade fades in under the header, so there is no edge where the list starts
+                    final int scrim = Theme.multAlpha(getThemedColor(Theme.key_windowBackgroundGray), LUMEN_BANNER_SCRIM);
+                    final int top = lumenHeaderBottom;
+                    final int bottom = top + dp(LUMEN_SCRIM_FADE_DP);
+                    lumenScrimPaint.setShader(new android.graphics.LinearGradient(0, top, 0, bottom, scrim & 0x00FFFFFF, scrim, android.graphics.Shader.TileMode.CLAMP));
+                    canvas.drawRect(0, top, getMeasuredWidth(), getMeasuredHeight(), lumenScrimPaint);
                 }
                 super.dispatchDraw(canvas);
                 /*
@@ -13424,7 +13494,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 }
                 case VIEW_TYPE_LOCATION:
                     view = new ProfileLocationCell(mContext, resourcesProvider);
-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                    view.setBackgroundColor(lumenCellBackground());
                     break;
                 case VIEW_TYPE_LUMEN_MUSIC:
                     view = new org.telegram.lumen.LumenNowPlayingCell(mContext, resourcesProvider);
@@ -13436,7 +13506,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                             return dontApplyPeerColor(color, false);
                         }
                     };
-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                    view.setBackgroundColor(lumenCellBackground());
                     break;
                 case VIEW_TYPE_VERSION:
                 default: {
@@ -13480,7 +13550,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                 case VIEW_TYPE_PREMIUM_TEXT_CELL:
                 case VIEW_TYPE_STARS_TEXT_CELL:
                     view = new ProfilePremiumCell(mContext, viewType == VIEW_TYPE_PREMIUM_TEXT_CELL ? 0 : 1, resourcesProvider);
-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                    view.setBackgroundColor(lumenCellBackground());
                     break;
                 case VIEW_TYPE_CHANNEL:
                     view = new ProfileChannelCell(ProfileActivity.this) {
@@ -13501,7 +13571,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     });
                     frameLayout.addView(button, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.FILL, 18, 14, 18, 14));
                     view = frameLayout;
-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
+                    view.setBackgroundColor(lumenCellBackground());
                     break;
             }
             if (viewType != VIEW_TYPE_SHARED_MEDIA) {
@@ -13807,6 +13877,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                     break;
                 case VIEW_TYPE_ABOUT_LINK:
                     AboutLinkCell aboutLinkCell = (AboutLinkCell) holder.itemView;
+                    aboutLinkCell.noFades = lumenFullBannerApplied;
                     if (position == userInfoRow) {
                         TLRPC.User user = userInfo.user != null ? userInfo.user : getMessagesController().getUser(userInfo.id);
                         boolean addlinks = isBot || (user != null && user.premium && userInfo.about != null);

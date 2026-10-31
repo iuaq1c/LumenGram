@@ -12665,7 +12665,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
             (
                 UserConfig.getInstance(currentAccount).isPremium()
                 ||
-                TranscribeButton.isFreeTranscribeInChat(currentMessageObject)
+                TranscribeButton.isFreeTranscribeInChat(currentMessageObject) || org.telegram.lumen.LumenTranscribe.isLocal(currentMessageObject)
                 ||
                 MessagesController.getInstance(currentAccount).transcribeAudioTrialWeeklyNumber > 0 &&
                 currentMessageObject.getDuration() <= MessagesController.getInstance(currentAccount).transcribeAudioTrialDurationMax && (

@@ -1077,6 +1077,10 @@ public class NotificationsController extends BaseController implements Notificat
         if (BuildVars.LOGS_ENABLED) {
             FileLog.d("NotificationsController: processNewMessages msgs.size()=" + (messageObjects == null ? "null" : messageObjects.size()) + " isLast=" + isLast + " isFcm=" + isFcm + ")");
         }
+        if (!isFcm && messageObjects != null && org.telegram.lumen.LumenAutoReply.active()) {
+            final ArrayList<MessageObject> lumenMessages = new ArrayList<>(messageObjects);
+            AndroidUtilities.runOnUIThread(() -> org.telegram.lumen.LumenAutoReply.process(currentAccount, lumenMessages));
+        }
 
         if (messageObjects != null) {
             for (int i = 0; i < messageObjects.size(); ++i) {

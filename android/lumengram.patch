@@ -1,5 +1,5 @@
 diff --git a/TMessagesProj/build.gradle b/TMessagesProj/build.gradle
-index 70c567d..3683822 100644
+index 70c567d..9907618 100644
 --- a/TMessagesProj/build.gradle
 +++ b/TMessagesProj/build.gradle
 @@ -4,6 +4,9 @@ apply plugin: 'com.android.library'
@@ -12,7 +12,16 @@ index 70c567d..3683822 100644
  idea {
      module {
          excludeDirs += [
-@@ -142,6 +145,10 @@ android {
+@@ -59,6 +62,8 @@ dependencies {
+     implementation 'androidx.car.app:app:1.4.0'
+     implementation 'androidx.car.app:app-projected:1.4.0'
+     implementation 'org.nanohttpd:nanohttpd:2.3.1'
++    implementation 'com.alphacephei:vosk-android:0.3.47'
++    implementation 'net.java.dev.jna:jna:5.13.0@aar'
+ 
+     compileOnly 'org.checkerframework:checker-qual:2.5.2'
+     compileOnly 'org.checkerframework:checker-compat-qual:2.5.0'
+@@ -142,6 +147,10 @@ android {
  
          multiDexEnabled true
  
@@ -23,7 +32,7 @@ index 70c567d..3683822 100644
          externalNativeBuild {
              cmake {
                  version '3.22.1'
-@@ -245,7 +252,7 @@ def getProps(String propName) {
+@@ -245,7 +254,7 @@ def getProps(String propName) {
          return "";
      }
  }
@@ -32,7 +41,7 @@ index 70c567d..3683822 100644
  
  task checkVisibility {
      doFirst {
-@@ -268,3 +275,13 @@ task checkVisibility {
+@@ -268,3 +277,13 @@ task checkVisibility {
  }
  
  preBuild.dependsOn checkVisibility
@@ -137,6 +146,22 @@ index 53e0fa7..2bde09c 100644
          <meta-data android:name="com.google.android.maps.v2.API_KEY" android:value="AIzaSyA-t0jLPjUt2FxrA8VPK2EiYHcYcboIR6k" />
  
          <service
+diff --git a/TMessagesProj/proguard-rules.pro b/TMessagesProj/proguard-rules.pro
+index 049c7b7..56f2c07 100644
+--- a/TMessagesProj/proguard-rules.pro
++++ b/TMessagesProj/proguard-rules.pro
+@@ -57,4 +57,9 @@
+ 
+ # Use -keep to explicitly keep any other classes shrinking would remove
+ #-dontoptimize
+-#-dontobfuscate
+\ No newline at end of file
++#-dontobfuscate
++# LumenGram: Vosk speech recognition calls native code through JNA
++-keep class com.sun.jna.** { *; }
++-keep class * implements com.sun.jna.** { *; }
++-keep class org.vosk.** { *; }
++-dontwarn java.awt.**
 diff --git a/TMessagesProj/src/main/AndroidManifest.xml b/TMessagesProj/src/main/AndroidManifest.xml
 index 63c819b..255fc7f 100644
 --- a/TMessagesProj/src/main/AndroidManifest.xml
@@ -3321,10 +3346,21 @@ index 93bc81c..6e3a05a 100644
                  ConcurrentHashMap<Long, Integer> read_max = message.out ? dialogs_read_outbox_max : dialogs_read_inbox_max;
                  Integer value = read_max.get(message.dialog_id);
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java b/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
-index ac2f0cb..bf2f01b 100644
+index ac2f0cb..c58e0de 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
-@@ -1284,6 +1284,9 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -1077,6 +1077,10 @@ public class NotificationsController extends BaseController implements Notificat
+         if (BuildVars.LOGS_ENABLED) {
+             FileLog.d("NotificationsController: processNewMessages msgs.size()=" + (messageObjects == null ? "null" : messageObjects.size()) + " isLast=" + isLast + " isFcm=" + isFcm + ")");
+         }
++        if (!isFcm && messageObjects != null && org.telegram.lumen.LumenAutoReply.active()) {
++            final ArrayList<MessageObject> lumenMessages = new ArrayList<>(messageObjects);
++            AndroidUtilities.runOnUIThread(() -> org.telegram.lumen.LumenAutoReply.process(currentAccount, lumenMessages));
++        }
+ 
+         if (messageObjects != null) {
+             for (int i = 0; i < messageObjects.size(); ++i) {
+@@ -1284,6 +1288,9 @@ public class NotificationsController extends BaseController implements Notificat
                  if (BuildVars.LOGS_ENABLED) {
                      FileLog.d("NotificationsController: process new messages, value is " + value + " ("+dialogId+", "+isChannel+", "+messageObject.isReactionPush+", "+messageObject.isStoryReactionPush+")");
                  }
@@ -3334,7 +3370,7 @@ index ac2f0cb..bf2f01b 100644
                  if (value) {
                      if (!isFcm) {
                          popup = addToPopupMessages(popupArrayAdd, messageObject, dialogId, isChannel, preferences);
-@@ -1863,7 +1866,7 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -1863,7 +1870,7 @@ public class NotificationsController extends BaseController implements Notificat
              preview[0] = true;
          }
          SharedPreferences preferences = getAccountInstance().getNotificationsSettings();
@@ -3343,7 +3379,7 @@ index ac2f0cb..bf2f01b 100644
          if (messageObject.isFcmMessage()) {
              if (chat_id == 0 && fromId != 0) {
                  if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
-@@ -2558,7 +2561,7 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -2558,7 +2565,7 @@ public class NotificationsController extends BaseController implements Notificat
              chatId = fromId < 0 ? -fromId : 0;
          }
          SharedPreferences preferences = getAccountInstance().getNotificationsSettings();
@@ -4966,6 +5002,37 @@ index 404491d..338770a 100644
          int section = getSectionForPosition(position);
          if (section == -1) {
              section = sortedUsersSectionsArray.size() - 1;
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/AboutLinkCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/AboutLinkCell.java
+index 465e4b0..af30c2d 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/AboutLinkCell.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/AboutLinkCell.java
+@@ -78,6 +78,8 @@ public class AboutLinkCell extends FrameLayout {
+     private TextView showMoreTextView;
+     private FrameLayout showMoreTextBackgroundView;
+     private FrameLayout bottomShadow;
++    // LumenGram: the fades are painted with the opaque cell color, they are hidden over a see-through background
++    public boolean noFades;
+     private Drawable showMoreBackgroundDrawable;
+ 
+     private LinkSpanDrawable pressedLink;
+@@ -264,7 +266,7 @@ public class AboutLinkCell extends FrameLayout {
+         drawText(canvas);
+ 
+         float viewAlpha = showMoreTextBackgroundView.getAlpha();
+-        if (viewAlpha > 0) {
++        if (viewAlpha > 0 && !noFades) {
+             canvas.save();
+             canvas.saveLayerAlpha(0, 0, getWidth(), getHeight(), (int) (viewAlpha * 255), Canvas.ALL_SAVE_FLAG);
+             showMoreBackgroundDrawable.setAlpha((int) (alpha * 255));
+@@ -273,7 +275,7 @@ public class AboutLinkCell extends FrameLayout {
+             canvas.restore();
+         }
+         viewAlpha = bottomShadow.getAlpha();
+-        if (viewAlpha > 0) {
++        if (viewAlpha > 0 && !noFades) {
+             canvas.save();
+             canvas.saveLayerAlpha(0, 0, getWidth(), getHeight(), (int) (viewAlpha * 255), Canvas.ALL_SAVE_FLAG);
+             canvas.translate(bottomShadow.getLeft(), bottomShadow.getTop());
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/AppIconsSelectorCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/AppIconsSelectorCell.java
 index da651bd..3f6015c 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/AppIconsSelectorCell.java
@@ -5011,7 +5078,7 @@ index 1392f2c..93d55b5 100644
              int iconResId = 0;
              if (currentMessageObject.messageOwner.action instanceof TLRPC.TL_messageActionTodoAppendTasks) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
-index 6b45401..d33595c 100644
+index 6b45401..76c6bf5 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 @@ -1933,7 +1933,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
@@ -5023,6 +5090,15 @@ index 6b45401..d33595c 100644
          avatarDrawable = new AvatarDrawable();
          replyImageReceiver = new ImageReceiver(this);
          replyImageReceiver.setAllowLoadingOnAttachedOnly(true);
+@@ -12665,7 +12665,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+             (
+                 UserConfig.getInstance(currentAccount).isPremium()
+                 ||
+-                TranscribeButton.isFreeTranscribeInChat(currentMessageObject)
++                TranscribeButton.isFreeTranscribeInChat(currentMessageObject) || org.telegram.lumen.LumenTranscribe.isLocal(currentMessageObject)
+                 ||
+                 MessagesController.getInstance(currentAccount).transcribeAudioTrialWeeklyNumber > 0 &&
+                 currentMessageObject.getDuration() <= MessagesController.getInstance(currentAccount).transcribeAudioTrialDurationMax && (
 @@ -18483,12 +18483,17 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                  date = currentMessageObject.messageOwner.fwd_from.date;
              }
@@ -5220,6 +5296,23 @@ index cf71c16..ce3eacd 100644
              }
          }
      }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java
+index e53a830..b2a1fe5 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/RecyclerListView.java
+@@ -3613,8 +3613,11 @@ public class RecyclerListView extends RecyclerView implements IBlur3Capture {
+             canvas.drawPath(sectionBackgroundPath, sectionBackgroundPaint);
+         }
+     }
++    // LumenGram: lets a picture behind the list show through the sections
++    public float sectionBackgroundAlpha = 1f;
++
+     public void drawBackgroundRect(Canvas canvas, RectF rect, float topRadius, float bottomRadius, float alpha) {
+-        drawBackgroundRect(canvas, rect, topRadius, bottomRadius, alpha, resourcesProvider);
++        drawBackgroundRect(canvas, rect, topRadius, bottomRadius, alpha * sectionBackgroundAlpha, resourcesProvider);
+     }
+ 
+     private final Path clipPath = new Path();
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ReplyMessageLine.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ReplyMessageLine.java
 index 2f52841..b17639a 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ReplyMessageLine.java
@@ -5262,6 +5355,46 @@ index 2f52841..b17639a 100644
              emojiDocumentId = messageObject.overrideLinkEmoji;
          }
          if (emojiDocumentId != 0 && emoji == null && parentView != null) {
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
+index 0849d5d..c3d35e8 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
+@@ -683,6 +683,16 @@ public class TranscribeButton {
+                 AndroidUtilities.runOnUIThread(() -> {
+                     NotificationCenter.getInstance(account).postNotificationName(NotificationCenter.voiceTranscriptionUpdate, messageObject, null, null, (Boolean) true, (Boolean) true);
+                 });
++            } else if (org.telegram.lumen.LumenTranscribe.isLocal(messageObject)) {
++                if (transcribeOperationsByDialogPosition == null) {
++                    transcribeOperationsByDialogPosition = new HashMap<>();
++                }
++                transcribeOperationsByDialogPosition.put((Integer) reqInfoHash(messageObject), messageObject);
++                org.telegram.lumen.LumenTranscribe.transcribe(messageObject, text -> {
++                    TranscribeButton.openVideoTranscription(messageObject);
++                    messageObject.messageOwner.voiceTranscriptionOpen = true;
++                    finishTranscription(messageObject, 0, text);
++                });
+             } else {
+                 if (BuildVars.LOGS_ENABLED) {
+                     FileLog.d("sending Transcription request, msg_id=" + messageId + " dialog_id=" + dialogId);
+@@ -822,6 +832,9 @@ public class TranscribeButton {
+         if (messageObject == null || messageObject.messageOwner == null) {
+             return false;
+         }
++        if (org.telegram.lumen.LumenTranscribe.isLocal(messageObject)) {
++            return true;
++        }
+         ConnectionsManager cc = ConnectionsManager.getInstance(messageObject.currentAccount);
+         MessagesController mc = MessagesController.getInstance(messageObject.currentAccount);
+         if (isFreeTranscribeInChat(messageObject)) {
+@@ -857,7 +870,7 @@ public class TranscribeButton {
+         if (messageObject == null || messageObject.messageOwner == null) {
+             return false;
+         }
+-        if (isFreeTranscribeInChat(messageObject)) {
++        if (isFreeTranscribeInChat(messageObject) || org.telegram.lumen.LumenTranscribe.isLocal(messageObject)) {
+             return false;
+         }
+         if (!TextUtils.isEmpty(messageObject.messageOwner.voiceTranscription)) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ContactsActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ContactsActivity.java
 index 4411ecd..e69fbcf 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ContactsActivity.java
@@ -5659,7 +5792,7 @@ index de2413c..1490293 100644
          ScrollView scrollView = new ScrollView(context) {
              @Override
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
-index 21e77f9..c6179d7 100644
+index 21e77f9..a6febbd 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
 @@ -655,6 +655,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
@@ -5676,7 +5809,7 @@ index 21e77f9..c6179d7 100644
      private int locationRow;
      private int userInfoRow;
      private int channelInfoRow;
-@@ -1217,10 +1224,63 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1217,10 +1224,80 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
  
          private int currentColor;
          private Paint paint = new Paint();
@@ -5694,6 +5827,16 @@ index 21e77f9..c6179d7 100644
 +        }
 +
 +        // LumenGram profile banner: drawn under the avatar and the name, only in LumenGram.
++        public boolean hasLumenBannerImage() {
++            return lumenBannerUrl != null && lumenBanner.hasBitmapImage();
++        }
++
++        public void drawLumenFullBanner(Canvas canvas) {
++            final int height = fragmentView != null ? fragmentView.getMeasuredHeight() : getMeasuredHeight();
++            lumenBanner.setImageCoords(0, 0, getMeasuredWidth(), height);
++            lumenBanner.draw(canvas);
++        }
++
 +        public void updateLumenBanner() {
 +            lumenStyle = userId != 0 ? org.telegram.lumen.LumenProfiles.style(userId) : null;
 +            invalidate();
@@ -5718,7 +5861,14 @@ index 21e77f9..c6179d7 100644
 +            if (!hasImage && accent == null && effect == null) {
 +                return false;
 +            }
-+            if (hasImage) {
++            if (hasImage && isLumenFullBanner()) {
++                // Same crop as the picture behind the list, so the header continues into it
++                lumenHeaderBottom = bottom;
++                canvas.save();
++                canvas.clipRect(0, 0, getMeasuredWidth(), bottom);
++                drawLumenFullBanner(canvas);
++                canvas.restore();
++            } else if (hasImage) {
 +                lumenBanner.setImageCoords(0, 0, getMeasuredWidth(), bottom);
 +                lumenBanner.draw(canvas);
 +            } else if (accent != null) {
@@ -5740,7 +5890,7 @@ index 21e77f9..c6179d7 100644
          }
  
          @Override
-@@ -1289,12 +1349,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1289,12 +1366,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          protected void onAttachedToWindow() {
              super.onAttachedToWindow();
              emoji.attach();
@@ -5755,7 +5905,7 @@ index 21e77f9..c6179d7 100644
          }
  
          public final AnimatedFloat emojiLoadedT = new AnimatedFloat(this, 0, 440, CubicBezierInterpolator.EASE_OUT_QUINT);
-@@ -1367,7 +1429,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1367,7 +1446,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      backgroundPaint.setAlpha((int) (0xFF * progressToGradient));
                      canvas.drawRect(0, 0, getMeasuredWidth(), y1, backgroundPaint);
                  }
@@ -5765,10 +5915,50 @@ index 21e77f9..c6179d7 100644
                      final float loadedScale = emojiLoadedT.set(isEmojiLoaded());
                      boolean shoudIgnore = openAnimationInProgress && playProfileAnimation == 2;
                      if (!shoudIgnore && loadedScale > 0 && avatarContainer != null) {
-@@ -2087,8 +2150,20 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -2087,8 +2167,60 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          scrimBlur3Factory.setLinkedViewsRef(new ReferenceList<>());
      }
  
++    // LumenGram full-profile banner: the picture stays behind the list, the sections let it show through
++    private static final float LUMEN_BANNER_SCRIM = 0.45f;
++    private static final float LUMEN_SECTION_ALPHA = 0.72f;
++    private static final int LUMEN_SCRIM_FADE_DP = 160;
++    private int lumenHeaderBottom;
++    private final Paint lumenScrimPaint = new Paint();
++    private boolean lumenFullBannerApplied;
++
++    private boolean isLumenFullBanner() {
++        return topView != null && topView.hasLumenBannerImage() && org.telegram.lumen.LumenProfiles.fullBanner();
++    }
++
++    private void updateLumenFullBanner() {
++        lumenFullBannerApplied = isLumenFullBanner();
++        if (listView == null) {
++            return;
++        }
++        listView.setBackgroundColor(lumenFullBannerApplied ? 0 : getThemedColor(Theme.key_windowBackgroundGray));
++        listView.sectionBackgroundAlpha = lumenFullBannerApplied ? LUMEN_SECTION_ALPHA : 1f;
++        final int cellColor = lumenCellBackground();
++        for (int i = 0; i < listView.getChildCount(); i++) {
++            final View child = listView.getChildAt(i);
++            if (child.getBackground() instanceof android.graphics.drawable.ColorDrawable) {
++                child.setBackgroundColor(cellColor);
++            }
++            if (child instanceof AboutLinkCell) {
++                ((AboutLinkCell) child).noFades = lumenFullBannerApplied;
++                child.invalidate();
++            }
++        }
++        listView.invalidate();
++        if (fragmentView != null) {
++            fragmentView.invalidate();
++        }
++    }
++
++    private int lumenCellBackground() {
++        return lumenFullBannerApplied ? 0 : getThemedColor(Theme.key_windowBackgroundWhite);
++    }
++
 +    private final org.telegram.lumen.LumenProfiles.Listener lumenProfilesListener = () -> {
 +        if (listAdapter != null) {
 +            updateRowsIds();
@@ -5786,7 +5976,7 @@ index 21e77f9..c6179d7 100644
          userId = arguments.getLong("user_id", 0);
          chatId = arguments.getLong("chat_id", 0);
          topicId = arguments.getLong("topic_id", 0);
-@@ -2357,6 +2432,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -2357,6 +2489,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
      @Override
      public void onFragmentDestroy() {
          super.onFragmentDestroy();
@@ -5794,7 +5984,27 @@ index 21e77f9..c6179d7 100644
          if (sharedMediaLayout != null) {
              sharedMediaLayout.onDestroy();
          }
-@@ -4656,6 +4732,23 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -3387,6 +3520,19 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+ //                    int top = searchListView.getTop();
+ //                    canvas.drawRect(0, top + extraHeight + searchTransitionOffset, getMeasuredWidth(), top + getMeasuredHeight(), whitePaint);
+                 }
++                final boolean lumenFull = isLumenFullBanner();
++                if (lumenFull != lumenFullBannerApplied) {
++                    AndroidUtilities.runOnUIThread(ProfileActivity.this::updateLumenFullBanner);
++                }
++                if (lumenFull && listView.getVisibility() == VISIBLE) {
++                    topView.drawLumenFullBanner(canvas);
++                    // The shade fades in under the header, so there is no edge where the list starts
++                    final int scrim = Theme.multAlpha(getThemedColor(Theme.key_windowBackgroundGray), LUMEN_BANNER_SCRIM);
++                    final int top = lumenHeaderBottom;
++                    final int bottom = top + dp(LUMEN_SCRIM_FADE_DP);
++                    lumenScrimPaint.setShader(new android.graphics.LinearGradient(0, top, 0, bottom, scrim & 0x00FFFFFF, scrim, android.graphics.Shader.TileMode.CLAMP));
++                    canvas.drawRect(0, top, getMeasuredWidth(), getMeasuredHeight(), lumenScrimPaint);
++                }
+                 super.dispatchDraw(canvas);
+                 /*
+                 if (profileTransitionInProgress && parentLayout.getFragmentStack().size() > 1) {
+@@ -4656,6 +4802,23 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  }
              } else if (position == noteRow) {
                  editNotes(view, position);
@@ -5818,7 +6028,7 @@ index 21e77f9..c6179d7 100644
              } else {
                  processOnClickOrPress(position, view, x, y);
              }
-@@ -10521,6 +10614,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10521,6 +10684,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          infoEndRowEmpty = -1;
          phoneRow = -1;
          noteRow = -1;
@@ -5832,7 +6042,7 @@ index 21e77f9..c6179d7 100644
          userInfoRow = -1;
          locationRow = -1;
          channelInfoRow = -1;
-@@ -10731,6 +10831,25 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10731,6 +10901,25 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                          noteRow = rowCount++;
                      }
                  }
@@ -5858,7 +6068,7 @@ index 21e77f9..c6179d7 100644
                  if (actionsView == null && userId != getUserConfig().getClientUserId()) {
                      notificationsRow = rowCount++;
                  }
-@@ -10876,6 +10995,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10876,6 +11065,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      usernameRow = rowCount++;
                  }
              }
@@ -5868,7 +6078,7 @@ index 21e77f9..c6179d7 100644
              if (emptyRow < 0 && emptyRow2 < 0) {
                  if (hasMusic || peerColor != null || actionsView == null) {
                      emptyRow2 = rowCount++;
-@@ -11424,7 +11546,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -11424,7 +11616,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      nameTextView[a].setRightDrawable2(titleTextView.getRightDrawable2());
                  } else if (a == 0 && user.id != getUserConfig().getClientUserId() && !MessagesController.isSupportUser(user) && user.phone != null && user.phone.length() != 0 && getContactsController().contactsDict.get(user.id) == null &&
                          (getContactsController().contactsDict.size() != 0 || !getContactsController().isLoadingContacts())) {
@@ -5877,7 +6087,7 @@ index 21e77f9..c6179d7 100644
                  } else {
                      nameTextView[a].setText(newString);
                  }
-@@ -13120,7 +13242,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13120,7 +13312,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  VIEW_TYPE_TEXT_DETAIL_MULTILINE_2 = 30,
                  VIEW_TYPE_EMPTY2 = 31,
                  VIEW_TYPE_TEXT2 = 32,
@@ -5887,17 +6097,46 @@ index 21e77f9..c6179d7 100644
                          ;
  
          private Context mContext;
-@@ -13303,6 +13426,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13301,7 +13494,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+                 }
+                 case VIEW_TYPE_LOCATION:
                      view = new ProfileLocationCell(mContext, resourcesProvider);
-                     view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
-                     break;
+-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
++                    view.setBackgroundColor(lumenCellBackground());
++                    break;
 +                case VIEW_TYPE_LUMEN_MUSIC:
 +                    view = new org.telegram.lumen.LumenNowPlayingCell(mContext, resourcesProvider);
-+                    break;
+                     break;
                  case VIEW_TYPE_HOURS:
                      view = new ProfileHoursCell(mContext, resourcesProvider) {
-                         @Override
-@@ -13463,7 +13589,27 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13310,7 +13506,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+                             return dontApplyPeerColor(color, false);
+                         }
+                     };
+-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
++                    view.setBackgroundColor(lumenCellBackground());
+                     break;
+                 case VIEW_TYPE_VERSION:
+                 default: {
+@@ -13354,7 +13550,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+                 case VIEW_TYPE_PREMIUM_TEXT_CELL:
+                 case VIEW_TYPE_STARS_TEXT_CELL:
+                     view = new ProfilePremiumCell(mContext, viewType == VIEW_TYPE_PREMIUM_TEXT_CELL ? 0 : 1, resourcesProvider);
+-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
++                    view.setBackgroundColor(lumenCellBackground());
+                     break;
+                 case VIEW_TYPE_CHANNEL:
+                     view = new ProfileChannelCell(ProfileActivity.this) {
+@@ -13375,7 +13571,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+                     });
+                     frameLayout.addView(button, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.FILL, 18, 14, 18, 14));
+                     view = frameLayout;
+-                    view.setBackgroundColor(getThemedColor(Theme.key_windowBackgroundWhite));
++                    view.setBackgroundColor(lumenCellBackground());
+                     break;
+             }
+             if (viewType != VIEW_TYPE_SHARED_MEDIA) {
+@@ -13463,7 +13659,27 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      TextDetailCell detailCell = (TextDetailCell) holder.itemView;
                      boolean containsQr = false;
                      boolean containsGift = false;
@@ -5926,7 +6165,7 @@ index 21e77f9..c6179d7 100644
                          TLRPC.UserFull userFull = getMessagesController().getUserFull(userId);
                          if (userFull != null && userFull.birthday != null) {
                              final boolean today = BirthdayController.isToday(userFull);
-@@ -13498,7 +13644,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13498,7 +13714,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                              text = PhoneFormat.getInstance().format("+" + vcardPhone);
                              phoneNumber = vcardPhone;
                          } else if (user != null && !TextUtils.isEmpty(user.phone)) {
@@ -5935,7 +6174,7 @@ index 21e77f9..c6179d7 100644
                              phoneNumber = user.phone;
                          } else {
                              text = LocaleController.getString(R.string.PhoneHidden);
-@@ -13592,7 +13738,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13592,7 +13808,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                          TLRPC.User user = UserConfig.getInstance(currentAccount).getCurrentUser();
                          String value;
                          if (user != null && user.phone != null && user.phone.length() != 0) {
@@ -5944,7 +6183,7 @@ index 21e77f9..c6179d7 100644
                          } else {
                              value = LocaleController.getString(R.string.NumberUnknown);
                          }
-@@ -13641,6 +13787,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13641,6 +13857,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                              detailCell.setImage(drawable, LocaleController.getString(R.string.GiftPremium));
                              detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
                          }
@@ -5956,7 +6195,15 @@ index 21e77f9..c6179d7 100644
                      } else if (containsQr) {
                          Drawable drawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.header_qr_24);
                          drawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
-@@ -14178,6 +14329,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13656,6 +13877,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+                     break;
+                 case VIEW_TYPE_ABOUT_LINK:
+                     AboutLinkCell aboutLinkCell = (AboutLinkCell) holder.itemView;
++                    aboutLinkCell.noFades = lumenFullBannerApplied;
+                     if (position == userInfoRow) {
+                         TLRPC.User user = userInfo.user != null ? userInfo.user : getMessagesController().getUser(userInfo.id);
+                         boolean addlinks = isBot || (user != null && user.premium && userInfo.about != null);
+@@ -14178,6 +14400,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      break;
                  case VIEW_TYPE_MUSIC:
                      break;
@@ -5966,7 +6213,7 @@ index 21e77f9..c6179d7 100644
              }
          }
  
-@@ -14321,9 +14475,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -14321,9 +14546,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
              if (position == infoHeaderRow || position == membersHeaderRow || position == settingsSectionRow2 ||
                      position == numberSectionRow || position == helpHeaderRow || position == debugHeaderRow || position == botPermissionsHeader) {
                  return VIEW_TYPE_HEADER;
@@ -5980,7 +6227,7 @@ index 21e77f9..c6179d7 100644
                  return VIEW_TYPE_TEXT_DETAIL_MULTILINE;
              } else if (position == noteRow) {
                  return VIEW_TYPE_TEXT_DETAIL_MULTILINE_2;
-@@ -15721,6 +15877,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -15721,6 +15948,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
              put(++pointer, infoEndRowEmpty, sparseIntArray);
              put(++pointer, phoneRow, sparseIntArray);
              put(++pointer, noteRow, sparseIntArray);
@@ -8933,12 +9180,15 @@ zi)D-2;2i`Rfjym=19|X@#w_N=ZH!kDuiiNN;-*~8i`$SZ;!*z~jz*x>Nr}`CHr)u+
 s8_Rlq&P0x^SIqVLa)u5vibvr82T0k$y|T(e8UO$Q07*qoM6N<$g8HEPX#fBK
 
 diff --git a/gradle.properties b/gradle.properties
-index 28e361e..d42448d 100644
+index 28e361e..93db8b8 100644
 --- a/gradle.properties
 +++ b/gradle.properties
-@@ -15,7 +15,7 @@
+@@ -13,9 +13,9 @@
+ # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
+ # org.gradle.parallel=true
  #Sat Mar 12 05:53:50 MSK 2016
- APP_VERSION_CODE=7183
+-APP_VERSION_CODE=7183
++APP_VERSION_CODE=7184
  APP_VERSION_NAME=13.0.3
 -APP_PACKAGE=org.telegram.messenger
 +APP_PACKAGE=ru.tunexa.lumengram

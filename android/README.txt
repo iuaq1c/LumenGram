@@ -1,4 +1,4 @@
-LumenGram for Android 1.2.0 - an unofficial Telegram client.
+LumenGram for Android 1.3.0 - an unofficial Telegram client.
 License: GNU GPL v2 or later (see LICENSE), like Telegram for Android it is based on.
 
 Based on Telegram for Android 13.0.3:

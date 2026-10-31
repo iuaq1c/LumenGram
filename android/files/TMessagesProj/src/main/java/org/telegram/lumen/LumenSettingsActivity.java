@@ -40,11 +40,16 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
     private static final int PLAIN_REPLIES = 23;
     private static final int SAVE_DELETED = 24;
     private static final int SAVE_EDITS = 25;
+    private static final int AUTO_REPLY = 26;
+    private static final int AUTO_REPLY_FOCUS = 27;
+    private static final int AUTO_REPLY_TEXT = 28;
+    private static final int LOCAL_TRANSCRIBE = 29;
     private static final int HIDE_STORIES = 30;
     private static final int SQUARE_AVATARS = 31;
     private static final int FOLDER_COUNTERS = 32;
     private static final int SIMILAR_CHANNELS = 33;
     private static final int LIQUID_GLASS = 34;
+    private static final int FULL_BANNER = 35;
     private static final int STREAMER = 50;
     private static final int PEER_ID = 51;
     private static final int PROFILE = 60;
@@ -121,11 +126,23 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
         items.add(UItem.asCheck(SAVE_EDITS, t("SaveEdits")).setChecked(LumenMessageHistory.saveEdits()));
         items.add(UItem.asShadow(t("SaveHistoryAbout")));
 
+        items.add(UItem.asCheck(LOCAL_TRANSCRIBE, t("LocalTranscribe")).setChecked(LumenTranscribe.enabled()));
+        items.add(UItem.asShadow(t("LocalTranscribeAbout")));
+
+        items.add(UItem.asHeader(t("AutoReplyTitle")));
+        items.add(check(AUTO_REPLY, "AutoReply", LumenAutoReply.ENABLED));
+        if (LumenAutoReply.enabled()) {
+            items.add(check(AUTO_REPLY_FOCUS, "AutoReplyFocusOnly", LumenAutoReply.FOCUS_ONLY));
+            items.add(UItem.asButton(AUTO_REPLY_TEXT, t("AutoReplyText"), LumenAutoReply.text()));
+        }
+        items.add(UItem.asShadow(t("AutoReplyAbout")));
+
         items.add(UItem.asHeader(t("ChatsTitle")));
         items.add(check(HIDE_STORIES, "HideStories", LumenConfig.HIDE_STORIES));
         items.add(check(SQUARE_AVATARS, "SquareAvatars", LumenConfig.SQUARE_AVATARS));
         items.add(check(FOLDER_COUNTERS, "HideFolderCounters", LumenConfig.HIDE_FOLDER_COUNTERS));
         items.add(check(SIMILAR_CHANNELS, "HideSimilarChannels", LumenConfig.HIDE_SIMILAR_CHANNELS));
+        items.add(UItem.asCheck(FULL_BANNER, t("FullBanner")).setChecked(LumenProfiles.fullBanner()));
         // Telegram's own liquid glass (a refraction shader), it needs Android 13 and a fast enough phone
         if (isLiquidGlassSupported()) {
             // The saved choice, not the current state: power saving turns it off below a battery level
@@ -241,8 +258,28 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
                 LumenConfig.setBool(LumenMessageHistory.SAVE_DELETED, !LumenMessageHistory.saveDeleted());
                 update();
                 break;
+            case LOCAL_TRANSCRIBE:
+                LumenConfig.setBool(LumenTranscribe.ENABLED, !LumenTranscribe.enabled());
+                update();
+                break;
+            case AUTO_REPLY:
+                toggle(LumenAutoReply.ENABLED);
+                break;
+            case AUTO_REPLY_FOCUS:
+                toggle(LumenAutoReply.FOCUS_ONLY);
+                break;
+            case AUTO_REPLY_TEXT:
+                LumenDialogs.input(this, t("AutoReplyText"), null, t("AutoReplyDefault"), LumenAutoReply.text(), true, text -> {
+                    LumenAutoReply.setText(text);
+                    update();
+                });
+                break;
             case SAVE_EDITS:
                 LumenConfig.setBool(LumenMessageHistory.SAVE_EDITS, !LumenMessageHistory.saveEdits());
+                update();
+                break;
+            case FULL_BANNER:
+                LumenConfig.setBool(LumenProfiles.FULL_BANNER, !LumenProfiles.fullBanner());
                 update();
                 break;
             case SIMILAR_CHANNELS:

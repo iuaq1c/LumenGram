@@ -108,6 +108,10 @@ public final class LumenFocus {
         return new SimpleDateFormat("yyyy-MM-dd", Locale.US).format(new Date());
     }
 
+    public static long openedDialogId() {
+        return openedDialogId;
+    }
+
     public static void chatOpened(long dialogId) {
         chatClosed();
         openedDialogId = dialogId;

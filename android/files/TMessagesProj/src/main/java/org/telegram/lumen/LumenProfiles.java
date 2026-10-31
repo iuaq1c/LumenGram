@@ -106,6 +106,13 @@ public final class LumenProfiles {
         listeners.remove(listener);
     }
 
+    public static final String FULL_BANNER = "fullProfileBanner";
+
+    // Banner stretched under the whole profile screen, not only under the avatar
+    public static boolean fullBanner() {
+        return LumenConfig.prefs().getBoolean(FULL_BANNER, true);
+    }
+
     public static String banner(long userId) {
         return banners.get(userId);
     }
