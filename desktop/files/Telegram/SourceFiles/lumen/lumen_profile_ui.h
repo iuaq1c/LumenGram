@@ -26,6 +26,19 @@ namespace Lumen {
 // Center-cropped banner with a shade, so white text stays readable.
 void PaintProfileBanner(QPainter &p, QRect rect, const QImage &banner);
 
+// The banner stretched under the whole profile, not only under the photo.
+[[nodiscard]] bool FullProfileBanner();
+void SetFullProfileBanner(bool enabled);
+
+// The banner over the whole profile area, `full` is in painter coordinates,
+// and a shade of `bg` below `shadeTop` that keeps the profile readable.
+void PaintFullProfileBanner(
+	QPainter &p,
+	QRect full,
+	const QImage &banner,
+	int shadeTop,
+	QColor bg);
+
 // The track the user is listening to right now, hidden without one.
 [[nodiscard]] object_ptr<Ui::SlideWrap<Ui::RpWidget>> CreateNowPlaying(
 	not_null<QWidget*> parent,

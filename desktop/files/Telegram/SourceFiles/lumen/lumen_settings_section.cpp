@@ -12,6 +12,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "core/version.h"
 #include "lang/lang_keys.h"
 #include "lumen/lumen_app_icon.h"
+#include "lumen/lumen_auto_reply.h"
 #include "lumen/lumen_bookmarks.h"
 #include "lumen/lumen_branding.h"
 #include "lumen/lumen_connection.h"
@@ -19,7 +20,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lumen/lumen_glass.h"
 #include "lumen/lumen_message_history.h"
 #include "lumen/lumen_profile_account.h"
+#include "lumen/lumen_profile_ui.h"
 #include "lumen/lumen_settings.h"
+#include "lumen/lumen_transcribe.h"
 #include "lumen/lumen_templates.h"
 #include "lumen/lumen_undo_send.h"
 #include "mainwindow.h"
@@ -513,8 +516,67 @@ void AddMessageOptions(SectionBuilder &builder) {
 		Lumen::SaveEditHistory,
 		Lumen::SetSaveEditHistory,
 		{ u"edited"_q, u"edits"_q, u"history"_q });
+	AddMessageToggle(
+		builder,
+		u"lumengram/local-transcribe"_q,
+		tr::lng_lumen_local_transcribe(),
+		&st::menuIconTranslate,
+		Lumen::LocalTranscribeEnabled,
+		Lumen::SetLocalTranscribeEnabled,
+		{ u"voice"_q, u"transcribe"_q, u"speech"_q });
 	builder.addSkip();
 	builder.addDividerText(tr::lng_lumen_messages_about());
+	builder.addSkip();
+	builder.addDividerText(tr::lng_lumen_local_transcribe_about());
+}
+
+void ShowAutoReplyTextBox(not_null<Window::SessionController*> controller) {
+	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+		box->setTitle(tr::lng_lumen_auto_reply_text());
+		const auto field = box->addRow(object_ptr<Ui::InputField>(
+			box,
+			st::defaultInputField,
+			Ui::InputField::Mode::MultiLine,
+			tr::lng_lumen_auto_reply_text(),
+			Lumen::AutoReplyText()));
+		field->setMaxLength(1024);
+		box->setFocusCallback([=] { field->setFocusFast(); });
+		const auto save = [=] {
+			Lumen::SetAutoReplyText(field->getLastText().trimmed());
+			box->closeBox();
+		};
+		box->addButton(tr::lng_settings_save(), save);
+		box->addButton(tr::lng_cancel(), [=] { box->closeBox(); });
+	}));
+}
+
+void AddAutoReplyOptions(SectionBuilder &builder) {
+	const auto controller = builder.controller();
+	builder.addSkip();
+	builder.addSubsectionTitle({
+		.id = u"lumengram/auto-reply"_q,
+		.title = tr::lng_lumen_auto_reply_title(),
+		.keywords = { u"auto"_q, u"reply"_q, u"away"_q },
+	});
+	AddMessageToggle(
+		builder,
+		u"lumengram/auto-reply-enabled"_q,
+		tr::lng_lumen_auto_reply(),
+		&st::menuIconReply,
+		Lumen::AutoReplyEnabled,
+		Lumen::SetAutoReplyEnabled,
+		{ u"auto"_q, u"reply"_q, u"away"_q });
+	if (controller) {
+		builder.addButton({
+			.id = u"lumengram/auto-reply-text"_q,
+			.title = tr::lng_lumen_auto_reply_text(),
+			.icon = { &st::menuIconEdit },
+			.onClick = [=] { ShowAutoReplyTextBox(controller); },
+			.keywords = { u"auto"_q, u"reply"_q, u"text"_q },
+		});
+	}
+	builder.addSkip();
+	builder.addDividerText(tr::lng_lumen_auto_reply_about());
 }
 
 void AddChatsOptions(SectionBuilder &builder) {
@@ -525,6 +587,14 @@ void AddChatsOptions(SectionBuilder &builder) {
 		.title = tr::lng_lumen_chats_title(),
 		.keywords = { u"chats"_q, u"stories"_q, u"folders"_q },
 	});
+	AddMessageToggle(
+		builder,
+		u"lumengram/full-banner"_q,
+		tr::lng_lumen_full_banner(),
+		&st::menuIconProfile,
+		Lumen::FullProfileBanner,
+		Lumen::SetFullProfileBanner,
+		{ u"banner"_q, u"profile"_q, u"background"_q });
 	AddMessageToggle(
 		builder,
 		u"lumengram/hide-stories"_q,
@@ -879,6 +949,7 @@ void BuildLumengramSection(SectionBuilder &builder) {
 	builder.addSkip();
 	AddPrivacyOptions(builder);
 	AddMessageOptions(builder);
+	AddAutoReplyOptions(builder);
 	AddChatsOptions(builder);
 	AddAppIconPicker(builder);
 	AddProfileOptions(builder);

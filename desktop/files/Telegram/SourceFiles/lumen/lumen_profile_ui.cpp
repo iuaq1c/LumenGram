@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lumen/lumen_profile_ui.h"
 
 #include "base/timer.h"
+#include "core/application.h"
+#include "core/core_settings.h"
 #include "data/data_peer.h"
 #include "data/data_peer_colors.h"
 #include "lumen/lumen_server.h"
@@ -38,6 +40,10 @@ constexpr auto kProgressTick = crl::time(1000);
 		+ ':'
 		+ QString::number(seconds % 60).rightJustified(2, '0');
 }
+
+constexpr auto kFullBannerPref = "lumen/full_profile_banner"_cs;
+constexpr auto kFullBannerShade = 0.62;
+constexpr auto kFullBannerShadeFade = 160;
 
 void DrawCropped(QPainter &p, QRect rect, const QImage &image) {
 	const auto source = QSizeF(image.size());
@@ -250,6 +256,44 @@ void PaintProfileBanner(QPainter &p, QRect rect, const QImage &banner) {
 	shade.setColorAt(0., QColor(0, 0, 0, 40));
 	shade.setColorAt(1., QColor(0, 0, 0, 150));
 	p.fillRect(rect, shade);
+	p.restore();
+}
+
+bool FullProfileBanner() {
+	return Core::App().settings().readPref<bool>(kFullBannerPref, true);
+}
+
+void SetFullProfileBanner(bool enabled) {
+	Core::App().settings().writePref<bool>(kFullBannerPref, enabled);
+	Core::App().saveSettingsDelayed();
+}
+
+void PaintFullProfileBanner(
+		QPainter &p,
+		QRect full,
+		const QImage &banner,
+		int shadeTop,
+		QColor bg) {
+	if (banner.isNull() || full.isEmpty()) {
+		return;
+	}
+	p.save();
+	p.setRenderHint(QPainter::SmoothPixmapTransform);
+	DrawCropped(p, full, banner);
+	if (shadeTop < full.bottom()) {
+		auto shade = QLinearGradient(
+			QPointF(0, shadeTop),
+			QPointF(0, shadeTop + kFullBannerShadeFade));
+		auto from = bg;
+		from.setAlphaF(0.);
+		auto to = bg;
+		to.setAlphaF(kFullBannerShade);
+		shade.setColorAt(0., from);
+		shade.setColorAt(1., to);
+		p.fillRect(
+			QRect(full.x(), shadeTop, full.width(), full.bottom() - shadeTop + 1),
+			shade);
+	}
 	p.restore();
 }
 
