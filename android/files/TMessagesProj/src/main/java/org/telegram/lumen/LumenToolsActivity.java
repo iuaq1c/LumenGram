@@ -36,6 +36,9 @@ public class LumenToolsActivity extends UniversalFragment {
     private static final int QUIET_PINNED = 9;
     private static final int LIMIT = 10;
     private static final int BLUR = 11;
+    private static final int VOICE_SEARCH = 12;
+    private static final int WRAPPED = 13;
+    private static final int LISTENING = 14;
     private static final int TEMPLATE_FIRST = 1000;
 
     private static final int[] FOCUS_MINUTES = {25, 50, 90};
@@ -90,6 +93,11 @@ public class LumenToolsActivity extends UniversalFragment {
         items.add(UItem.asHeader(t("ToolsTitle")));
         items.add(UItem.asCheck(UNDO_SEND, t("UndoSend")).setChecked(LumenConfig.getBool(LumenConfig.UNDO_SEND)));
         items.add(UItem.asButton(BOOKMARKS, R.drawable.msg_fave, t("BookmarksTitle"), String.valueOf(LumenMessageTools.bookmarks().size())));
+        items.add(UItem.asButton(VOICE_SEARCH, R.drawable.msg_voice_unmuted, t("VoiceSearchTitle")));
+        if (LumenConfig.prefs().getBoolean("isListeningEnabled", true)) {
+            items.add(UItem.asButton(LISTENING, R.drawable.msg_link, t("ListenWebTitle")));
+        }
+        items.add(UItem.asButton(WRAPPED, R.drawable.msg_stats, LumenLang.format("WrappedTitle", "year", java.util.Calendar.getInstance().get(java.util.Calendar.YEAR))).accent());
         items.add(UItem.asShadow(t("UndoSendAbout")));
 
         items.add(UItem.asHeader(t("TemplatesTitle")));
@@ -155,6 +163,15 @@ public class LumenToolsActivity extends UniversalFragment {
                 return;
             case BOOKMARKS:
                 presentFragment(new LumenBookmarksActivity());
+                return;
+            case VOICE_SEARCH:
+                presentFragment(new LumenVoiceSearchActivity());
+                return;
+            case LISTENING:
+                Browser.openUrl(getParentActivity(), "https://tunexa.ru/lumengram/listen");
+                return;
+            case WRAPPED:
+                presentFragment(new LumenWrappedActivity());
                 return;
             case TEMPLATE_ADD:
                 editTemplate(-1);

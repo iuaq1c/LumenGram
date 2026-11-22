@@ -45,6 +45,11 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
     private static final int AUTO_REPLY_TEXT = 28;
     private static final int LOCAL_TRANSCRIBE = 29;
     private static final int HIDE_STORIES = 30;
+    private static final int DND_STOP = 40;
+    private static final int DND_PRESET = 41;
+    private static final int DND_CUSTOM = 46; // After the 5 presets
+    private static final int DND_REPLY = 47;
+    private static final int FULLSCREEN_EFFECTS = 48;
     private static final int SQUARE_AVATARS = 31;
     private static final int FOLDER_COUNTERS = 32;
     private static final int SIMILAR_CHANNELS = 33;
@@ -58,6 +63,7 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
     private static final int WEBSITE = 70;
     private static final int DONATE = 71;
     private static final int NEWS = 72;
+    private static final int NEW_FEATURES = 73;
 
     @Override
     public boolean onFragmentCreate() {
@@ -126,8 +132,23 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
         items.add(UItem.asCheck(SAVE_EDITS, t("SaveEdits")).setChecked(LumenMessageHistory.saveEdits()));
         items.add(UItem.asShadow(t("SaveHistoryAbout")));
 
+        items.add(UItem.asCheck(FULLSCREEN_EFFECTS, t("FullscreenEffects")).setChecked(LumenFullscreenEffect.enabled()));
+        items.add(UItem.asShadow(t("FullscreenEffectsAbout")));
+
         items.add(UItem.asCheck(LOCAL_TRANSCRIBE, t("LocalTranscribe")).setChecked(LumenTranscribe.enabled()));
         items.add(UItem.asShadow(t("LocalTranscribeAbout")));
+
+        items.add(UItem.asHeader(t("DndTitle")));
+        if (LumenDnd.active()) {
+            items.add(UItem.asButton(DND_STOP, LumenDnd.statusLine(), t("DndStop")));
+        } else {
+            for (int i = 0; i < LumenDnd.PRESETS.length; i++) {
+                items.add(UItem.asButton(DND_PRESET + i, dndPreset(i)));
+            }
+            items.add(UItem.asButton(DND_CUSTOM, t("DndCustom")));
+        }
+        items.add(UItem.asCheck(DND_REPLY, t("DndReplyToggle")).setChecked(LumenAutoReply.dndReply()));
+        items.add(UItem.asShadow(t("DndAbout")));
 
         items.add(UItem.asHeader(t("AutoReplyTitle")));
         items.add(check(AUTO_REPLY, "AutoReply", LumenAutoReply.ENABLED));
@@ -163,6 +184,7 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
 
         items.add(UItem.asButton(PROFILE, R.drawable.msg_openprofile, t("ProfileTitle")));
         items.add(UItem.asButton(TOOLS, R.drawable.msg_edit, t("ToolsTitle")));
+        items.add(UItem.asButton(NEW_FEATURES, R.drawable.msg_settings, t("FeaturesTitle")));
         items.add(UItem.asButton(FEED, R.drawable.msg_channel, t("FeedTitle")));
         items.add(UItem.asShadow(null));
 
@@ -197,6 +219,35 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
         update();
     }
 
+    private static String dndPreset(int index) {
+        return LumenDnd.PRESETS[index][0] + " " + t(LumenDnd.PRESETS[index][1]);
+    }
+
+    // Sleep starts at 8:00 in the morning, the rest an hour from now
+    private void pickDndTime(String status, boolean sleep) {
+        if (getParentActivity() == null) {
+            return;
+        }
+        final java.util.Calendar inHour = java.util.Calendar.getInstance();
+        inHour.add(java.util.Calendar.HOUR_OF_DAY, 1);
+        final int hour = sleep ? 8 : inHour.get(java.util.Calendar.HOUR_OF_DAY);
+        final int minute = 0;
+        final int dialogTheme = Theme.isCurrentThemeDark() ? android.R.style.Theme_DeviceDefault_Dialog_Alert : android.R.style.Theme_DeviceDefault_Light_Dialog_Alert;
+        final android.app.TimePickerDialog dialog = new android.app.TimePickerDialog(getParentActivity(), dialogTheme, (picker, h, m) -> {
+            LumenDnd.start(status, LumenDnd.nextTime(h, m), this::onDndSaved);
+            update();
+        }, hour, minute, true);
+        dialog.setTitle(t("DndUntilPick"));
+        dialog.show();
+    }
+
+    private void onDndSaved(org.json.JSONObject result, String error) {
+        if (error != null) {
+            LumenDialogs.error(this, error);
+        }
+        update();
+    }
+
     private void update() {
         if (listView != null) {
             listView.adapter.update(true);
@@ -205,7 +256,34 @@ public class LumenSettingsActivity extends UniversalFragment implements Notifica
 
     @Override
     protected void onClick(UItem item, View view, int position, float x, float y) {
+        if (item.id == NEW_FEATURES) {
+            presentFragment(new LumenNewFeaturesActivity());
+            return;
+        }
+        if (item.id >= DND_PRESET && item.id < DND_CUSTOM) {
+            pickDndTime(dndPreset(item.id - DND_PRESET), item.id == DND_PRESET);
+            return;
+        }
         switch (item.id) {
+            case DND_STOP:
+                LumenDnd.stop(this::onDndSaved);
+                update();
+                break;
+            case DND_CUSTOM:
+                LumenDialogs.input(this, t("DndCustom"), null, t("DndCustomHint"), "", false, text -> {
+                    if (!text.isEmpty()) {
+                        pickDndTime(text, false);
+                    }
+                });
+                break;
+            case FULLSCREEN_EFFECTS:
+                LumenConfig.prefs().edit().putBoolean(LumenFullscreenEffect.ENABLED, !LumenFullscreenEffect.enabled()).apply();
+                update();
+                break;
+            case DND_REPLY:
+                LumenConfig.prefs().edit().putBoolean(LumenAutoReply.DND_REPLY, !LumenAutoReply.dndReply()).apply();
+                update();
+                break;
             case RELAY_AUTO:
                 LumenConnection.setMode(LumenConfig.RELAY_AUTO);
                 update();

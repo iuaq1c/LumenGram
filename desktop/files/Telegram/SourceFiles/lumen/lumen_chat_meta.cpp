@@ -6,6 +6,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "lumen/lumen_chat_meta.h"
 
+#include "lumen/lumen_game.h"
+
 #include "apiwrap.h"
 #include "core/application.h"
 #include "core/core_settings.h"
@@ -373,6 +375,11 @@ void FillChatMenu(
 			menu->addAction(tr::lng_lumen_stats_title(tr::now), [=] {
 				ShowStatsBox(controller, peer);
 			}, &st::menuIconStats);
+			if (CanStartGame(peer)) {
+				menu->addAction(tr::lng_lumen_game_start(tr::now), [=] {
+					StartGame(controller, peer);
+				}, &st::menuIconEmoji);
+			}
 		},
 	});
 }

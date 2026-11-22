@@ -6,6 +6,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "lumen/lumen_auto_reply.h"
 
+#include "lumen/lumen_dnd.h"
+#include "lumen/lumen_new_features.h"
+
 #include "api/api_common.h"
 #include "apiwrap.h"
 #include "base/unixtime.h"
@@ -68,7 +71,8 @@ constexpr auto kMaxMessageAge = TimeId(120);
 }
 
 void HandleNewItem(not_null<HistoryItem*> item) {
-	if (!AutoReplyEnabled()
+	const auto dndReply = DndActive() && DndAutoReply();
+	if (IsThreatHidden(item) || !(AutoReplyEnabled() || dndReply)
 		|| item->out()
 		|| !item->isRegular()
 		|| item->isService()
@@ -108,6 +112,9 @@ rpl::producer<bool> AutoReplyEnabledValue() {
 }
 
 QString AutoReplyText() {
+	if (DndActive() && DndAutoReply()) {
+		return tr::lng_lumen_dnd_reply(tr::now, lt_status, DndStatusLine());
+	}
 	const auto text = QString::fromUtf8(
 		Core::App().settings().readPref<QByteArray>(kTextPref));
 	return text.isEmpty() ? tr::lng_lumen_auto_reply_default(tr::now) : text;

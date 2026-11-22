@@ -1,8 +1,8 @@
 diff --git a/Telegram/CMakeLists.txt b/Telegram/CMakeLists.txt
-index 19606db..9d5fe9c 100644
+index 19606db..79c7b01 100644
 --- a/Telegram/CMakeLists.txt
 +++ b/Telegram/CMakeLists.txt
-@@ -1506,6 +1506,57 @@ PRIVATE
+@@ -1506,6 +1506,69 @@ PRIVATE
      layout/layout_document_generic_preview.h
      layout/layout_item_base.cpp
      layout/layout_item_base.h
@@ -33,6 +33,18 @@ index 19606db..9d5fe9c 100644
 +    lumen/lumen_intro_parts.h
 +    lumen/lumen_auto_reply.cpp
 +    lumen/lumen_auto_reply.h
++    lumen/lumen_new_features.cpp
++    lumen/lumen_new_features.h
++    lumen/lumen_dnd.cpp
++    lumen/lumen_dnd.h
++    lumen/lumen_fullscreen_effect.cpp
++    lumen/lumen_fullscreen_effect.h
++    lumen/lumen_game.cpp
++    lumen/lumen_game.h
++    lumen/lumen_voice_index.cpp
++    lumen/lumen_voice_index.h
++    lumen/lumen_wrapped.cpp
++    lumen/lumen_wrapped.h
 +    lumen/lumen_message_history.cpp
 +    lumen/lumen_message_history.h
 +    lumen/lumen_message_tools.cpp
@@ -60,7 +72,7 @@ index 19606db..9d5fe9c 100644
      main/main_account.cpp
      main/main_account.h
      main/main_app_config.cpp
-@@ -2654,6 +2705,8 @@ if (MSVC)
+@@ -2654,6 +2717,8 @@ if (MSVC)
      target_link_libraries(Telegram
      PRIVATE
          delayimp
@@ -69,7 +81,7 @@ index 19606db..9d5fe9c 100644
      )
      target_link_options(Telegram
      PRIVATE
-@@ -2671,6 +2724,7 @@ if (MSVC)
+@@ -2671,6 +2736,7 @@ if (MSVC)
          /DELAYLOAD:oleaut32.dll
          /DELAYLOAD:shlwapi.dll
          /DELAYLOAD:iphlpapi.dll
@@ -31502,10 +31514,10 @@ zrXI-N!qcZuDHHKsk!&&q;G~*TBaj+_)Ci<TAT<L2zY+KclOy??3=c%I00000NkvXX
 Hu0mjf3D9?0
 
 diff --git a/Telegram/Resources/langs/lang.strings b/Telegram/Resources/langs/lang.strings
-index 287a23a..53cfe9c 100644
+index 287a23a..7bfb256 100644
 --- a/Telegram/Resources/langs/lang.strings
 +++ b/Telegram/Resources/langs/lang.strings
-@@ -886,6 +886,160 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -886,6 +886,209 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
  "lng_settings_theme_classic" = "Classic";
  "lng_settings_theme_tinted" = "Tinted";
  "lng_settings_theme_night" = "Night";
@@ -31642,6 +31654,55 @@ index 287a23a..53cfe9c 100644
 +"lng_lumen_auto_reply_default" = "I can't answer right now, I'll write back later.";
 +"lng_lumen_auto_reply_about" = "LumenGram answers people in private chats, at most once in 6 hours per chat. Bots, groups and channels get no answer. It works while LumenGram is running.";
 +"lng_lumen_full_banner" = "Banner across the whole profile";
++"lng_lumen_dnd_title" = "Do not disturb";
++"lng_lumen_wrapped_title" = "Your {year} in review";
++"lng_lumen_wrapped_loading" = "Counting your year… {percent}%";
++"lng_lumen_wrapped_messages" = "This year you wrote {number} messages in {chats} chats";
++"lng_lumen_wrapped_person" = "❤️ Your people of the year:";
++"lng_lumen_wrapped_word" = "💬 Word of the year: «{word}», {number} times";
++"lng_lumen_wrapped_emoji" = "✨ Favourite emoji:";
++"lng_lumen_wrapped_owl" = "🦉 Night owl";
++"lng_lumen_wrapped_lark" = "🐦 Early bird";
++"lng_lumen_wrapped_day" = "☀️ Daytime chatter";
++"lng_lumen_wrapped_evening" = "🌆 Evening person";
++"lng_lumen_wrapped_hour" = "You write most often at {hour}";
++"lng_lumen_wrapped_made" = "Made in LumenGram · tunexa.ru/docs/lumengram";
++"lng_lumen_voice_search_title" = "Search in voice messages";
++"lng_lumen_listening_web" = "Listen together · Web";
++"lng_lumen_voice_search_hint" = "Word or phrase";
++"lng_lumen_voice_search_empty" = "No transcribed voice messages yet. Press the transcribe button on any voice message.";
++"lng_lumen_voice_search_nothing" = "Nothing found.";
++"lng_lumen_game_start" = "Play tic-tac-toe";
++"lng_lumen_game_title" = "Tic-tac-toe";
++"lng_lumen_game_your_turn" = "Your move, you play {mark}";
++"lng_lumen_game_wait" = "Waiting for the other player's move.";
++"lng_lumen_game_watching" = "You are watching this game.";
++"lng_lumen_game_you_won" = "You won! 🎉";
++"lng_lumen_game_you_lost" = "You lost this time.";
++"lng_lumen_game_won" = "{mark} won.";
++"lng_lumen_game_draw" = "It's a draw.";
++"lng_lumen_game_msg_invite" = "✖️⭕ Let's play tic-tac-toe! Your move:";
++"lng_lumen_game_msg_move" = "{mark} made a move, your turn:";
++"lng_lumen_game_msg_won" = "{mark} won! 🎉";
++"lng_lumen_game_msg_draw" = "It's a draw! 🤝";
++"lng_lumen_fullscreen_effects" = "Fullscreen emoji";
++"lng_lumen_dnd_set" = "Set a status";
++"lng_lumen_dnd_stop" = "Turn off";
++"lng_lumen_dnd_sleep" = "Sleeping";
++"lng_lumen_dnd_study" = "In class";
++"lng_lumen_dnd_work" = "Busy at work";
++"lng_lumen_dnd_driving" = "Driving";
++"lng_lumen_dnd_gaming" = "Playing";
++"lng_lumen_dnd_custom" = "Your own status";
++"lng_lumen_dnd_custom_hint" = "For example, At the gym";
++"lng_lumen_dnd_next" = "Next";
++"lng_lumen_dnd_until_pick" = "Until what time?";
++"lng_lumen_dnd_time_hint" = "Time, for example 08:00";
++"lng_lumen_dnd_start" = "Turn on";
++"lng_lumen_dnd_until" = "{status} until {time}";
++"lng_lumen_dnd_reply_toggle" = "Answer with the status";
++"lng_lumen_dnd_reply" = "{status}. I'll answer as soon as I'm free.";
++"lng_lumen_dnd_about" = "While the status is on, notifications are muted and LumenGram users see it in your profile. It turns off by itself at the set time.";
 +"lng_lumen_deleted_mark" = "deleted";
 +"lng_lumen_edit_history" = "Edit history";
 +"lng_lumen_edit_history_current" = "{date} · current version";
@@ -31666,6 +31727,58 @@ index 287a23a..53cfe9c 100644
  "lng_settings_theme_accent_title" = "Choose accent color";
  "lng_settings_theme_system_accent_color" = "System accent color";
  "lng_settings_data_storage" = "Data and storage";
+@@ -9257,3 +9460,51 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ "lng_passcode_strength_advice_fine" = "This passcode is hard to guess.";
+ 
+ // Keys finished
++
++"lng_lumen_features_title" = "New LumenGram features";
++
++"lng_lumen_listen_title" = "Listen together";
++
++"lng_lumen_portal_title" = "Portal";
++
++"lng_lumen_threat_title" = "Threat protection";
++
++"lng_lumen_threat_log" = "Protection history";
++
++"lng_lumen_threat_hidden" = "Message hidden";
++
++"lng_lumen_threat_block" = "Block sender";
++
++"lng_lumen_threat_unblock" = "Unblock";
++
++"lng_lumen_threat_reveal" = "Show message";
++
++"lng_lumen_threat_clear" = "Clear history";
++
++"lng_lumen_threat_phrases" = "Words or phrases, one per line";
++
++"lng_lumen_threat_exceptions" = "Telegram user ID to exclude";
++
++"lng_lumen_threat_substring" = "Part of a word";
++
++"lng_lumen_threat_contacts" = "Exclude my Telegram contacts";
++
++"lng_lumen_threat_about" = "Only your phrases are checked, while this client is running. Whole-word matching ignores case. The default action hides the message; automatic blocking is optional.";
++
++"lng_lumen_boost_download" = "Downloads";
++
++"lng_lumen_boost_upload" = "Uploads";
++
++"lng_lumen_boost_off" = "Off — standard Telegram behavior";
++
++"lng_lumen_boost_auto" = "Auto";
++
++"lng_lumen_boost_fast" = "Maximum speed";
++
++"lng_lumen_boost_eco" = "Save data and battery";
++
++"lng_lumen_boost_wifi" = "Only on a detected Wi-Fi or wired connection";
++
++"lng_lumen_boost_about" = "Uses more parallel requests in fast mode and fewer in economy mode. Telegram limits still apply. If the browser cannot detect the connection type, Wi-Fi-only acceleration stays off.";
++
++"lng_lumen_portal_web" = "Portal · Web";
 diff --git a/Telegram/Resources/qrc/telegram/telegram.qrc b/Telegram/Resources/qrc/telegram/telegram.qrc
 index 6c966a1..35fab79 100644
 --- a/Telegram/Resources/qrc/telegram/telegram.qrc
@@ -31758,19 +31871,20 @@ index 206520e..9076adb 100644
  	} else if (user->isSelf()) {
  		return true;
 diff --git a/Telegram/SourceFiles/api/api_transcribes.cpp b/Telegram/SourceFiles/api/api_transcribes.cpp
-index 7c6b271..523dfd6 100644
+index 7c6b271..b5f7c0c 100644
 --- a/Telegram/SourceFiles/api/api_transcribes.cpp
 +++ b/Telegram/SourceFiles/api/api_transcribes.cpp
-@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -7,6 +7,9 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
  */
  #include "api/api_transcribes.h"
  
 +#include "lumen/lumen_transcribe.h"
++#include "lumen/lumen_voice_index.h"
 +
  #include "apiwrap.h"
  #include "api/api_text_entities.h"
  #include "data/data_channel.h"
-@@ -56,6 +58,9 @@ void Transcribes::rate(not_null<HistoryItem*> item, bool isGood) {
+@@ -56,6 +59,9 @@ void Transcribes::rate(not_null<HistoryItem*> item, bool isGood) {
  }
  
  bool Transcribes::freeFor(not_null<HistoryItem*> item) const {
@@ -31780,7 +31894,19 @@ index 7c6b271..523dfd6 100644
  	if (const auto channel = item->history()->peer->asMegagroup()) {
  		const auto owner = &channel->owner();
  		return channel->levelHint() >= owner->groupFreeTranscribeLevel();
-@@ -185,6 +190,10 @@ void Transcribes::load(not_null<HistoryItem*> item) {
+@@ -161,6 +167,11 @@ void Transcribes::apply(const MTPDupdateTranscribedAudio &update) {
+ 	}
+ 	const auto text = qs(update.vtext());
+ 	j->second.result = text;
++	if (!update.is_pending()) {
++		if (const auto item = _session->data().message(i->second)) {
++			Lumen::SaveVoiceText(item, text);
++		}
++	}
+ 	j->second.pending = update.is_pending();
+ 	if (const auto item = _session->data().message(i->second)) {
+ 		if (j->second.roundview) {
+@@ -185,6 +196,10 @@ void Transcribes::load(not_null<HistoryItem*> item) {
  		}
  	};
  	const auto id = item->fullId();
@@ -31791,7 +31917,7 @@ index 7c6b271..523dfd6 100644
  	const auto requestId = _api.request(MTPmessages_TranscribeAudio(
  		item->history()->peer->input(),
  		MTP_int(item->id)
-@@ -236,6 +245,37 @@ void Transcribes::load(not_null<HistoryItem*> item) {
+@@ -236,6 +251,40 @@ void Transcribes::load(not_null<HistoryItem*> item) {
  	entry.pending = false;
  }
  
@@ -31816,6 +31942,9 @@ index 7c6b271..523dfd6 100644
 +		}
 +		i->second.pending = false;
 +		i->second.result = text;
++		if (const auto item = _session->data().message(id)) {
++			Lumen::SaveVoiceText(item, text);
++		}
 +		i->second.failed = text.isEmpty();
 +		if (const auto item = _session->data().message(id)) {
 +			if (i->second.roundview) {
@@ -32082,6 +32211,29 @@ index b3b76e0..261e3d0 100644
  
  #if QT_VERSION < QT_VERSION_CHECK(6, 0, 0)
  	// fallback session management is useless for tdesktop since it doesn't have
+diff --git a/Telegram/SourceFiles/core/ui_integration.cpp b/Telegram/SourceFiles/core/ui_integration.cpp
+index 18d91fb..958cf2d 100644
+--- a/Telegram/SourceFiles/core/ui_integration.cpp
++++ b/Telegram/SourceFiles/core/ui_integration.cpp
+@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "core/ui_integration.h"
+ 
++#include "lumen/lumen_game.h"
++
+ #include "api/api_text_entities.h"
+ #include "core/local_url_handlers.h"
+ #include "core/file_utilities.h"
+@@ -420,6 +422,9 @@ bool UiIntegration::handleUrlClick(
+ 	const auto url = context.value<ClickHandlerContext>().keepWebAuthTokens
+ 		? original
+ 		: UrlWithoutWebAuthTokens(original);
++	if (Lumen::HandleGameUrl(url, context)) {
++		return true;
++	}
+ 	const auto local = Core::TryConvertUrlToLocal(url);
+ 	if (Core::InternalPassportOrOAuthLink(local)) {
+ 		return true;
 diff --git a/Telegram/SourceFiles/core/version.h b/Telegram/SourceFiles/core/version.h
 index 2de2881..0442960 100644
 --- a/Telegram/SourceFiles/core/version.h
@@ -32408,10 +32560,18 @@ index 56f7c2f..382d19f 100644
  		not_null<const Element*> view,
  		int localTop);
 diff --git a/Telegram/SourceFiles/history/history_item.cpp b/Telegram/SourceFiles/history/history_item.cpp
-index bfe8005..c102d69 100644
+index bfe8005..b6ce869 100644
 --- a/Telegram/SourceFiles/history/history_item.cpp
 +++ b/Telegram/SourceFiles/history/history_item.cpp
-@@ -32,6 +32,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
+ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "history/history_item.h"
++#include "lumen/lumen_new_features.h"
+ 
+ #include "api/api_premium.h"
+ #include "api/api_sensitive_content.h"
+@@ -32,6 +33,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
  #include "settings/settings_credits_graphics.h" // ShowRefundInfoBox.
  #include "storage/file_upload.h"
  #include "storage/storage_shared_media.h"
@@ -32419,7 +32579,7 @@ index bfe8005..c102d69 100644
  #include "main/main_session.h"
  #include "main/main_app_config.h"
  #include "main/main_session_settings.h"
-@@ -2396,6 +2397,7 @@ void HistoryItem::clearMainView() {
+@@ -2396,6 +2398,7 @@ void HistoryItem::clearMainView() {
  
  void HistoryItem::applyEdition(HistoryMessageEdition &&edition) {
  	history()->session().ephemeralMessages().revertAnchored(this);
@@ -32427,6 +32587,26 @@ index bfe8005..c102d69 100644
  
  	int keyboardTop = -1;
  	//if (!pendingResize()) {// #TODO edit bot message
+@@ -4937,6 +4940,9 @@ const HiddenSenderInfo *HistoryItem::savedFromHiddenSenderInfo() const {
+ 
+ TextWithEntities HistoryItem::notificationText(
+ 		NotificationTextOptions options) const {
++	if (Lumen::IsThreatHidden(this)) {
++		return { tr::lng_lumen_threat_hidden(tr::now) };
++	}
+ 	auto result = [&] {
+ 		if (_media && !isService()) {
+ 			return _media->notificationText();
+@@ -4968,6 +4974,9 @@ TextWithEntities HistoryItem::notificationText(
+ }
+ 
+ ItemPreview HistoryItem::toPreview(ToPreviewOptions options) const {
++	if (Lumen::IsThreatHidden(this)) {
++		return { .text = Ui::Text::Colorized(notificationText()) };
++	}
+ 	if (isService()) {
+ 		const_cast<HistoryItem*>(this)->resolveDependent();
+ 
 diff --git a/Telegram/SourceFiles/history/history_item_helpers.cpp b/Telegram/SourceFiles/history/history_item_helpers.cpp
 index 80377d7..9fdd228 100644
 --- a/Telegram/SourceFiles/history/history_item_helpers.cpp
@@ -32598,10 +32778,18 @@ index 057de48..fe1a9e7 100644
  		for (const auto &link : links) {
  			// Link indices start with 1.
 diff --git a/Telegram/SourceFiles/history/view/history_view_message.cpp b/Telegram/SourceFiles/history/view/history_view_message.cpp
-index 2b72afa..6b42641 100644
+index 2b72afa..9e1c281 100644
 --- a/Telegram/SourceFiles/history/view/history_view_message.cpp
 +++ b/Telegram/SourceFiles/history/view/history_view_message.cpp
-@@ -38,6 +38,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
+ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "history/view/history_view_message.h"
++#include "lumen/lumen_new_features.h"
+ 
+ #include "api/api_suggest_post.h"
+ #include "api/api_transcribes.h"
+@@ -38,6 +39,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
  #include "boxes/premium_preview_box.h"
  #include "boxes/share_box.h"
  #include "boxes/peers/tag_info_box.h"
@@ -32609,7 +32797,39 @@ index 2b72afa..6b42641 100644
  #include "ui/chat/torn_edge.h"
  #include "ui/effects/reaction_fly_animation.h"
  #include "ui/effects/ripple_animation.h"
-@@ -5995,7 +5996,9 @@ std::optional<QSize> Message::rightActionSize() const {
+@@ -1787,6 +1789,13 @@ int Message::marginBottom() const {
+ }
+ 
+ void Message::draw(Painter &p, const PaintContext &context) const {
++	if (Lumen::IsThreatHidden(data())) {
++		p.setFont(st::normalFont);
++		p.setPen(st::windowFg);
++		p.drawText(QRect(0, 0, width(), height()), Qt::AlignCenter,
++			tr::lng_lumen_threat_hidden(tr::now));
++		return;
++	}
+ 	auto g = countGeometry();
+ 	if (g.width() < 1) {
+ 		return;
+@@ -3900,6 +3909,17 @@ TextState Message::textState(
+ 	_fromLinkRipplePointSet = 0;
+ 
+ 	const auto item = data();
++	if (Lumen::IsThreatHidden(item)) {
++		auto result = TextState(item);
++		const auto sessionId = item->history()->session().uniqueId();
++		result.link = std::make_shared<LambdaClickHandler>([=](ClickContext context) {
++			const auto controller = ExtractController(context);
++			if (controller && controller->session().uniqueId() == sessionId) {
++				Lumen::ShowThreatLog(controller);
++			}
++		});
++		return result;
++	}
+ 	const auto media = this->media();
+ 
+ 	auto result = TextState(item);
+@@ -5995,7 +6015,9 @@ std::optional<QSize> Message::rightActionSize() const {
  bool Message::displayFastShare() const {
  	const auto item = data();
  	const auto peer = item->history()->peer;
@@ -32620,7 +32840,7 @@ index 2b72afa..6b42641 100644
  		return false;
  	} else if (peer->isChannel()) {
  		return !peer->isMegagroup();
-@@ -6598,7 +6601,8 @@ Ui::BubbleRounding Message::countMessageRounding() const {
+@@ -6598,7 +6620,8 @@ Ui::BubbleRounding Message::countMessageRounding() const {
  		|| (rich && richMediaAtBottom())
  		|| (keyboard != nullptr)
  		|| item->isFakeAboutView()
@@ -32630,6 +32850,17 @@ index 2b72afa..6b42641 100644
  	const auto right = hasRightLayout();
  	using Corner = Ui::BubbleCornerRounding;
  	return Ui::BubbleRounding{
+@@ -6632,6 +6655,10 @@ Ui::BubbleRounding Message::countBubbleRounding() const {
+ }
+ 
+ int Message::resizeContentGetHeight(int newWidth) {
++	if (Lumen::IsThreatHidden(data())) {
++		return marginTop() + marginBottom() + st::msgPadding.top()
++			+ st::msgPadding.bottom() + st::normalFont->height;
++	}
+ 	if (isHidden()) {
+ 		return marginTop() + marginBottom();
+ 	} else if (newWidth < st::msgMinWidth) {
 diff --git a/Telegram/SourceFiles/history/view/history_view_reply.cpp b/Telegram/SourceFiles/history/view/history_view_reply.cpp
 index 2b3a9ca..ab2b3e5 100644
 --- a/Telegram/SourceFiles/history/view/history_view_reply.cpp
@@ -33539,23 +33770,27 @@ index 2721c7a..3c48ea6 100644
  	});
  	_mtp->setSessionResetHandler([=](MTP::ShiftedDcId shiftedDcId) {
 diff --git a/Telegram/SourceFiles/main/main_session.cpp b/Telegram/SourceFiles/main/main_session.cpp
-index 2b9d589..d0299cb 100644
+index 2b9d589..4a3772d 100644
 --- a/Telegram/SourceFiles/main/main_session.cpp
 +++ b/Telegram/SourceFiles/main/main_session.cpp
-@@ -7,6 +7,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -7,6 +7,10 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
  */
  #include "main/main_session.h"
  
 +#include "lumen/lumen_auto_reply.h"
++#include "lumen/lumen_new_features.h"
++#include "lumen/lumen_fullscreen_effect.h"
 +
  #include "apiwrap.h"
  #include "api/api_peer_colors.h"
  #include "api/api_updates.h"
-@@ -271,6 +273,7 @@ Session::Session(
+@@ -271,6 +275,9 @@ Session::Session(
  	_api->requestNotifySettings(MTP_inputNotifyBroadcasts());
  
  	Core::App().downloadManager().trackSession(this);
++	Lumen::SetupThreatProtection(this);
 +	Lumen::SetupAutoReply(this);
++	Lumen::SetupFullscreenEffects(this);
  
  	appConfig().value(
  	) | rpl::on_next([=] {
@@ -33715,6 +33950,119 @@ index a16c3ee..c74fcbd 100644
  
  	_text.setText(
  		st::boxTextStyle,
+diff --git a/Telegram/SourceFiles/storage/download_manager_mtproto.cpp b/Telegram/SourceFiles/storage/download_manager_mtproto.cpp
+index d0007eb..4952362 100644
+--- a/Telegram/SourceFiles/storage/download_manager_mtproto.cpp
++++ b/Telegram/SourceFiles/storage/download_manager_mtproto.cpp
+@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
+ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "storage/download_manager_mtproto.h"
++#include "lumen/lumen_new_features.h"
+ 
+ #include "mtproto/facade.h"
+ #include "mtproto/mtproto_auth_key.h"
+@@ -21,7 +22,8 @@ namespace {
+ 
+ constexpr auto kKillSessionTimeout = 15 * crl::time(1000);
+ constexpr auto kStartWaitedInSession = 4 * kDownloadPartSize;
+-constexpr auto kMaxWaitedInSession = 16 * kDownloadPartSize;
++constexpr auto kStandardWaitedInSession = 16 * kDownloadPartSize;
++constexpr auto kMaxWaitedInSession = 2 * kStandardWaitedInSession;
+ constexpr auto kStartSessionsCount = 1;
+ constexpr auto kMaxSessionsCount = 8;
+ constexpr auto kMaxTrackedSessionRemoves = 64;
+@@ -182,12 +184,17 @@ bool DownloadManagerMtproto::trySendNextPart(MTP::DcId dcId, Queue &queue) {
+ 	const auto &sessions = balanceData.sessions;
+ 	const auto bestIndex = [&] {
+ 		const auto proj = [](const DcSessionBalanceData &data) {
+-			return (data.requested < data.maxWaitedAmount)
++			const auto limit = std::min(data.maxWaitedAmount,
++				Lumen::TransferRequestLimit(kStandardWaitedInSession, false));
++			return (data.requested < limit)
+ 				? data.requested
+ 				: kMaxWaitedInSession;
+ 		};
+-		const auto j = ranges::min_element(sessions, ranges::less(), proj);
+-		return (j->requested + kDownloadPartSize <= j->maxWaitedAmount)
++		const auto count = std::min(int(sessions.size()), Lumen::TransferSessionLimit(kMaxSessionsCount, false));
++		const auto j = ranges::min_element(begin(sessions), begin(sessions) + count, ranges::less(), proj);
++		const auto limit = std::min(j->maxWaitedAmount,
++			Lumen::TransferRequestLimit(kStandardWaitedInSession, false));
++		return (j->requested + kDownloadPartSize <= limit)
+ 			? (j - begin(sessions))
+ 			: -1;
+ 	}();
+@@ -260,10 +267,10 @@ void DownloadManagerMtproto::requestSucceeded(
+ 		return;
+ 	}
+ 	if (amountAtRequestStart == data.maxWaitedAmount
+-		&& data.maxWaitedAmount < kMaxWaitedInSession) {
++		&& data.maxWaitedAmount < Lumen::TransferRequestLimit(kStandardWaitedInSession, false)) {
+ 		data.maxWaitedAmount = std::min(
+ 			data.maxWaitedAmount + kDownloadPartSize,
+-			kMaxWaitedInSession);
++			Lumen::TransferRequestLimit(kStandardWaitedInSession, false));
+ 		DEBUG_LOG(("Download (%1,%2) increased max waited amount %3."
+ 			).arg(dcId
+ 			).arg(index
+diff --git a/Telegram/SourceFiles/storage/file_upload.cpp b/Telegram/SourceFiles/storage/file_upload.cpp
+index a19470a..4481615 100644
+--- a/Telegram/SourceFiles/storage/file_upload.cpp
++++ b/Telegram/SourceFiles/storage/file_upload.cpp
+@@ -6,6 +6,7 @@ For license and copyright information please follow this link:
+ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "storage/file_upload.h"
++#include "lumen/lumen_new_features.h"
+ 
+ #include "api/api_editing.h"
+ #include "api/api_send_progress.h"
+@@ -689,13 +690,14 @@ QByteArray Uploader::readDocPart(not_null<Entry*> entry) {
+ 
+ bool Uploader::canAddDcIndex() const {
+ 	const auto count = int(_sentPerDcIndex.size());
+-	return (count < kMaxSessionsCount)
++	return (count < Lumen::TransferSessionLimit(kMaxSessionsCount, true))
+ 		&& (count == int(_dcIndicesWithFastRequests.size()));
+ }
+ 
+ std::optional<uchar> Uploader::chooseDcIndexForNextRequest(
+ 		const base::flat_set<uchar> &used) {
+-	for (auto i = 0, count = int(_sentPerDcIndex.size()); i != count; ++i) {
++	for (auto i = 0, count = std::min(int(_sentPerDcIndex.size()),
++		Lumen::TransferSessionLimit(kMaxSessionsCount, true)); i != count; ++i) {
+ 		if (!_sentPerDcIndex[i] && !used.contains(i)) {
+ 			return i;
+ 		}
+@@ -710,7 +712,8 @@ std::optional<uchar> Uploader::chooseDcIndexForNextRequest(
+ 		return result;
+ 	}
+ 	auto result = std::optional<int>();
+-	for (auto i = 0, count = int(_sentPerDcIndex.size()); i != count; ++i) {
++	for (auto i = 0, count = std::min(int(_sentPerDcIndex.size()),
++		Lumen::TransferSessionLimit(kMaxSessionsCount, true)); i != count; ++i) {
+ 		if (!used.contains(i)
+ 			&& (!result.has_value()
+ 				|| _sentPerDcIndex[i] < _sentPerDcIndex[*result])) {
+@@ -802,7 +805,7 @@ auto Uploader::sendDocPart(not_null<Entry*> entry, uchar dcIndex)
+ 	const auto itemId = entry->itemId;
+ 	const auto alreadySent = _sentPerDcIndex[dcIndex];
+ 	const auto willProbablyBeSent = entry->docPartSize;
+-	if (alreadySent + willProbablyBeSent > kMaxUploadPerSession) {
++	if (alreadySent + willProbablyBeSent > Lumen::TransferRequestLimit(kMaxUploadPerSession, true)) {
+ 		return SendResult::DcIndexFull;
+ 	}
+ 
+@@ -848,7 +851,7 @@ auto Uploader::sendSlicedPart(not_null<Entry*> entry, uchar dcIndex)
+ 	const auto itemId = entry->itemId;
+ 	const auto alreadySent = _sentPerDcIndex[dcIndex];
+ 	const auto willBeSent = entry->parts->at(entry->partsSent).size();
+-	if (alreadySent + willBeSent >= kMaxUploadPerSession) {
++	if (alreadySent + willBeSent >= Lumen::TransferRequestLimit(kMaxUploadPerSession, true)) {
+ 		return SendResult::DcIndexFull;
+ 	}
+ 
 diff --git a/Telegram/SourceFiles/tray.cpp b/Telegram/SourceFiles/tray.cpp
 index 6abba92..29417dc 100644
 --- a/Telegram/SourceFiles/tray.cpp
@@ -33943,10 +34291,15 @@ index ae2b494..872e5dc 100644
  	}
  	const auto history = thread->owningHistory();
 diff --git a/Telegram/SourceFiles/window/notifications_manager.cpp b/Telegram/SourceFiles/window/notifications_manager.cpp
-index e5b9eb9..4dfd6de 100644
+index e5b9eb9..cb19621 100644
 --- a/Telegram/SourceFiles/window/notifications_manager.cpp
 +++ b/Telegram/SourceFiles/window/notifications_manager.cpp
-@@ -10,6 +10,7 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+@@ -7,9 +7,12 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
+ */
+ #include "window/notifications_manager.h"
+ 
++#include "lumen/lumen_dnd.h"
++
  #include "base/options.h"
  #include "base/platform/base_platform_info.h"
  #include "base/qt/qt_key_modifiers.h"
@@ -33954,7 +34307,18 @@ index e5b9eb9..4dfd6de 100644
  #include "platform/platform_notifications_manager.h"
  #include "window/notifications_manager_default.h"
  #include "media/audio/media_audio_track.h"
-@@ -1573,7 +1574,7 @@ void NativeManager::doShowNotification(NotificationFields &&fields) {
+@@ -437,7 +440,9 @@ void System::schedule(Data::ItemNotification notification) {
+ 	const auto item = notification.item;
+ 	const auto type = notification.type;
+ 	const auto thread = item->notificationThread();
+-	const auto skip = skipNotification(notification);
++	const auto skip = Lumen::DndActive()
++		? SkipState{ SkipState::Skip }
++		: skipNotification(notification);
+ 	if (skip.value == SkipState::Skip) {
+ 		thread->popNotification(notification);
+ 		return;
+@@ -1573,7 +1578,7 @@ void NativeManager::doShowNotification(NotificationFields &&fields) {
  			: name;
  	};
  	const auto title = options.hideNameAndPhoto

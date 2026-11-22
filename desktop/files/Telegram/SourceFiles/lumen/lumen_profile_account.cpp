@@ -268,6 +268,21 @@ void DeleteBanner(not_null<Main::Session*> session, Done done, Fail fail) {
 	}, fail);
 }
 
+void SaveAway(
+		not_null<Main::Session*> session,
+		const QString &text,
+		qint64 until,
+		Done done,
+		Fail fail) {
+	Post(session, u"/api/lumengram/away"_q, {
+		{ u"text"_q, text },
+		{ u"until"_q, QString::number(until) },
+	}, [=](QJsonObject) {
+		RefreshProfilesNow();
+		done();
+	}, fail);
+}
+
 void ConnectLastfm(
 		not_null<Main::Session*> session,
 		const QString &username,

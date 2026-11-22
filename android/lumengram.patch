@@ -3247,6 +3247,83 @@ index a350abf..ece2e20 100644
                          am.addAccountExplicitly(systemAccount, "", null);
                      } catch (Exception ignore) {
  
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/FileLoadOperation.java b/TMessagesProj/src/main/java/org/telegram/messenger/FileLoadOperation.java
+index 12a3153..7365ae3 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/FileLoadOperation.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/FileLoadOperation.java
+@@ -2261,6 +2261,7 @@ public class FileLoadOperation {
+     }
+ 
+     protected void startDownloadRequest(int useConnectionType) {
++        final int lumenMaxRequests = org.telegram.lumen.LumenTransfers.requests(currentMaxDownloadRequests, false);
+         Utilities.stageQueue.cancelRunnable(pacedDownloadRequest);
+         if (BuildVars.DEBUG_PRIVATE_VERSION) {
+             if (Utilities.stageQueue != null && Utilities.stageQueue.getHandler() != null && Thread.currentThread() != Utilities.stageQueue.getHandler().getLooper().getThread()) {
+@@ -2274,7 +2275,7 @@ public class FileLoadOperation {
+             state = stateDownloading;
+         }
+         if (paused || reuploadingCdn || state != stateDownloading || requestingReference ||
+-                (!isStory && streamPriorityStartOffset == 0 && (!nextPartWasPreloaded && (requestInfos.size() + delayedRequestInfos.size() >= currentMaxDownloadRequests))) ||
++                (!isStory && streamPriorityStartOffset == 0 && (!nextPartWasPreloaded && (requestInfos.size() + delayedRequestInfos.size() >= lumenMaxRequests))) ||
+                 (isPreloadVideoOperation && (requestedBytesCount > preloadMaxBytes || moovFound != 0 && requestInfos.size() > 0))) {
+             if (BuildVars.LOGS_ENABLED && FULL_LOGS) {
+                 FileLog.d(fileName + " can't start request wrong state: paused=" + paused + " reuploadingCdn=" + reuploadingCdn + " state=" + state + " requestingReference=" + requestingReference);
+@@ -2283,10 +2284,10 @@ public class FileLoadOperation {
+         }
+         int count = 1;
+         if (isStory) {
+-            count = Math.max(0, currentMaxDownloadRequests - requestInfos.size());
++            count = Math.max(0, lumenMaxRequests - requestInfos.size());
+         } else {
+             if (streamPriorityStartOffset == 0 && !nextPartWasPreloaded && (!isPreloadVideoOperation || moovFound != 0) && totalBytesCount > 0) {
+-                count = Math.max(0, currentMaxDownloadRequests - requestInfos.size() -
++                count = Math.max(0, lumenMaxRequests - requestInfos.size() -
+                         (useDownloadByteBudget ? delayedRequestInfos.size() : 0));
+             }
+         }
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/FileUploadOperation.java b/TMessagesProj/src/main/java/org/telegram/messenger/FileUploadOperation.java
+index b2ebccd..7ff639c 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/FileUploadOperation.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/FileUploadOperation.java
+@@ -109,6 +109,11 @@ public class FileUploadOperation {
+         delegate = fileUploadOperationDelegate;
+     }
+ 
++    private int lumenRequestsLimit() {
++        final int limit = org.telegram.lumen.LumenTransfers.requests(maxRequestsCount, true);
++        return isEncrypted ? Math.min(maxRequestsCount, limit) : limit;
++    }
++
+     public void start() {
+         if (state != 0) {
+             return;
+@@ -229,7 +234,7 @@ public class FileUploadOperation {
+                 }
+             }
+             availableSize = finalSize > 0 ? finalSize : newAvailableSize;
+-            if (currentUploadRequetsCount < maxRequestsCount) {
++            if (currentUploadRequetsCount < lumenRequestsLimit()) {
+                 startUploadRequest();
+             }
+         });
+@@ -628,7 +633,7 @@ public class FileUploadOperation {
+                             StatsController.getInstance(currentAccount).incrementSentItemsCount(ApplicationLoader.getCurrentNetworkType(), StatsController.TYPE_FILES, 1);
+                         }
+                     }
+-                } else if (currentUploadRequetsCount < maxRequestsCount) {
++                } else if (currentUploadRequetsCount < lumenRequestsLimit()) {
+                     if (estimatedSize == 0 && !uploadFirstPartLater && !nextPartFirst) {
+                         if (saveInfoTimes >= 4) {
+                             saveInfoTimes = 0;
+@@ -671,7 +676,7 @@ public class FileUploadOperation {
+                 cleanup();
+             }
+         }, null, () -> Utilities.stageQueue.postRunnable(() -> {
+-            if (currentUploadRequetsCount < maxRequestsCount) {
++            if (currentUploadRequetsCount < lumenRequestsLimit()) {
+                 startUploadRequest();
+             }
+         }), forceSmallFile ? ConnectionsManager.RequestFlagCanCompress : 0, ConnectionsManager.DEFAULT_DATACENTER_ID, connectionType, true);
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java b/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
 index 245a5ab..d8d1d5c 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/LocaleController.java
@@ -3285,7 +3362,7 @@ index ec503d9..26b5fcd 100644
                              } else {
                                  if (messageOwner.peer_id.channel_id != 0) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java b/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
-index 93bc81c..6e3a05a 100644
+index 93bc81c..ae55f37 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
 @@ -10518,7 +10518,7 @@ public class MessagesController extends BaseController implements NotificationCe
@@ -3345,11 +3422,23 @@ index 93bc81c..6e3a05a 100644
  
                  ConcurrentHashMap<Long, Integer> read_max = message.out ? dialogs_read_outbox_max : dialogs_read_inbox_max;
                  Integer value = read_max.get(message.dialog_id);
+@@ -21892,6 +21905,7 @@ public class MessagesController extends BaseController implements NotificationCe
+     }
+ 
+     public boolean updateInterfaceWithMessages(long dialogId, ArrayList<MessageObject> messages, int mode) {
++        if (mode == 0) org.telegram.lumen.LumenThreats.process(currentAccount, messages);
+         if (messages == null || messages.isEmpty()) {
+             return false;
+         }
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java b/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
-index ac2f0cb..c58e0de 100644
+index ac2f0cb..63fda4e 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/NotificationsController.java
-@@ -1077,6 +1077,10 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -1074,9 +1074,14 @@ public class NotificationsController extends BaseController implements Notificat
+     }
+ 
+     public void processNewMessages(ArrayList<MessageObject> messageObjects, boolean isLast, boolean isFcm, CountDownLatch countDownLatch) {
++        if (!isFcm) org.telegram.lumen.LumenThreats.process(currentAccount, messageObjects);
          if (BuildVars.LOGS_ENABLED) {
              FileLog.d("NotificationsController: processNewMessages msgs.size()=" + (messageObjects == null ? "null" : messageObjects.size()) + " isLast=" + isLast + " isFcm=" + isFcm + ")");
          }
@@ -3360,17 +3449,18 @@ index ac2f0cb..c58e0de 100644
  
          if (messageObjects != null) {
              for (int i = 0; i < messageObjects.size(); ++i) {
-@@ -1284,6 +1288,9 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -1284,6 +1289,10 @@ public class NotificationsController extends BaseController implements Notificat
                  if (BuildVars.LOGS_ENABLED) {
                      FileLog.d("NotificationsController: process new messages, value is " + value + " ("+dialogId+", "+isChannel+", "+messageObject.isReactionPush+", "+messageObject.isStoryReactionPush+")");
                  }
++                if (value && org.telegram.lumen.LumenThreats.isHidden(currentAccount, dialogId, messageObject.getId())) value = false;
 +                if (value && org.telegram.lumen.LumenFocus.silences(currentAccount, dialogId)) {
 +                    value = false;
 +                }
                  if (value) {
                      if (!isFcm) {
                          popup = addToPopupMessages(popupArrayAdd, messageObject, dialogId, isChannel, preferences);
-@@ -1863,7 +1870,7 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -1863,7 +1872,7 @@ public class NotificationsController extends BaseController implements Notificat
              preview[0] = true;
          }
          SharedPreferences preferences = getAccountInstance().getNotificationsSettings();
@@ -3379,7 +3469,7 @@ index ac2f0cb..c58e0de 100644
          if (messageObject.isFcmMessage()) {
              if (chat_id == 0 && fromId != 0) {
                  if (Build.VERSION.SDK_INT > Build.VERSION_CODES.O_MR1) {
-@@ -2558,7 +2565,7 @@ public class NotificationsController extends BaseController implements Notificat
+@@ -2558,7 +2567,7 @@ public class NotificationsController extends BaseController implements Notificat
              chatId = fromId < 0 ? -fromId : 0;
          }
          SharedPreferences preferences = getAccountInstance().getNotificationsSettings();
@@ -3436,6 +3526,20 @@ index b04acd4..ef55462 100644
          String name = user.first_name;
          if (TextUtils.isEmpty(name)) {
              name = user.last_name;
+diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/browser/Browser.java b/TMessagesProj/src/main/java/org/telegram/messenger/browser/Browser.java
+index e0cc4ec..809a922 100644
+--- a/TMessagesProj/src/main/java/org/telegram/messenger/browser/Browser.java
++++ b/TMessagesProj/src/main/java/org/telegram/messenger/browser/Browser.java
+@@ -292,6 +292,9 @@ public class Browser {
+         if (context == null || uri == null) {
+             return;
+         }
++        if (org.telegram.lumen.LumenGame.handle(uri)) {
++            return;
++        }
+         final int currentAccount = UserConfig.selectedAccount;
+         boolean[] forceBrowser = new boolean[]{false};
+         boolean internalUri = isInternalUri(uri, forceBrowser);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java b/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
 index b56ee0d..8152839 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ActionBar/Theme.java
@@ -5078,7 +5182,7 @@ index 1392f2c..93d55b5 100644
              int iconResId = 0;
              if (currentMessageObject.messageOwner.action instanceof TLRPC.TL_messageActionTodoAppendTasks) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
-index 6b45401..76c6bf5 100644
+index 6b45401..bbe4efe 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 @@ -1933,7 +1933,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
@@ -5090,7 +5194,18 @@ index 6b45401..76c6bf5 100644
          avatarDrawable = new AvatarDrawable();
          replyImageReceiver = new ImageReceiver(this);
          replyImageReceiver.setAllowLoadingOnAttachedOnly(true);
-@@ -12665,7 +12665,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -6769,7 +6769,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+ 
+     public MultiLayoutTypingAnimator botDraftTypingAnimator;
+ 
+-    private void setMessageContent(MessageObject messageObject, MessageObject.GroupedMessages groupedMessages, boolean bottomNear, boolean topNear, boolean firstInChat, boolean lastInChatList) {
++    private void setMessageContent(MessageObject originalMessageObject, MessageObject.GroupedMessages originalGroupedMessages, boolean bottomNear, boolean topNear, boolean firstInChat, boolean lastInChatList) {
++        final MessageObject messageObject = org.telegram.lumen.LumenThreats.display(originalMessageObject);
++        final MessageObject.GroupedMessages groupedMessages = messageObject == originalMessageObject ? originalGroupedMessages : null;
+         if (messageObject.checkLayout() || currentPosition != null && lastHeight != AndroidUtilities.displaySize.y) {
+             currentMessageObject = null;
+         }
+@@ -12665,7 +12667,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
              (
                  UserConfig.getInstance(currentAccount).isPremium()
                  ||
@@ -5099,7 +5214,7 @@ index 6b45401..76c6bf5 100644
                  ||
                  MessagesController.getInstance(currentAccount).transcribeAudioTrialWeeklyNumber > 0 &&
                  currentMessageObject.getDuration() <= MessagesController.getInstance(currentAccount).transcribeAudioTrialDurationMax && (
-@@ -18483,12 +18483,17 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -18483,12 +18485,17 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                  date = currentMessageObject.messageOwner.fwd_from.date;
              }
              timeString = LocaleController.formatSeenDate(date);
@@ -5117,7 +5232,7 @@ index 6b45401..76c6bf5 100644
          if (signString != null) {
              if (messageObject.messageOwner.via_business_bot_id != 0) {
                  currentTimeString = timeString + ", ";
-@@ -18658,6 +18663,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -18658,6 +18665,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
      }
  
      protected boolean checkNeedDrawShareButton(MessageObject messageObject) {
@@ -5126,10 +5241,21 @@ index 6b45401..76c6bf5 100644
          if (currentMessageObject.deleted && !currentMessageObject.deletedByThanos) return false;
          if (currentMessageObject.isSponsored()) return false;
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java
-index 0fae7fd..a49828d 100644
+index 0fae7fd..f5d1907 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java
-@@ -2223,10 +2223,10 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+@@ -1685,6 +1685,10 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+                                 messageString = "";
+                             }
+                         }
++                    } else if (org.telegram.lumen.LumenThreats.isHidden(currentAccount, message.getDialogId(), message.getId())) {
++                        messageString = org.telegram.lumen.LumenLang.get("ThreatHidden");
++                        thumbsCount = 0;
++                        hasVideoThumb = false;
+                     } else {
+                         String restrictionReason = MessagesController.getInstance(message.currentAccount).getRestrictionReason(message.messageOwner.restriction_reason);
+                         TLRPC.User fromUser = null;
+@@ -2223,10 +2227,10 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                              sb.setSpan(new FilterCreateActivity.TextSpan(getString(R.string.MonoforumSpan), 9.33f, Theme.key_windowBackgroundWhiteGrayText, resourcesProvider), index, sb.length(), Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
                              nameString = sb;
                          } else {
@@ -5142,7 +5268,7 @@ index 0fae7fd..a49828d 100644
                      }
                  } else if (user != null) {
                      if (UserObject.isReplyUser(user)) {
-@@ -3709,7 +3709,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+@@ -3709,7 +3713,7 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
              } else if (chat != null && chat.forum && currentDialogFolderId == 0 && !useFromUserAsAvatar || !isSavedDialog && user != null && user.self && MessagesController.getInstance(currentAccount).savedViewAsChats) {
                  avatarRadius = dp(16);
              } else {
@@ -5151,7 +5277,7 @@ index 0fae7fd..a49828d 100644
              }
  
              avatarImage.setRoundRadius(avatarRadius);
-@@ -3796,6 +3796,14 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+@@ -3796,6 +3800,14 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
      private GradientDrawable archiveFadeGradientDrawable;
      private int archiveFadeGradientDrawableColor;
  
@@ -5166,7 +5292,7 @@ index 0fae7fd..a49828d 100644
      @SuppressLint("DrawAllocation")
      @Override
      protected void onDraw(Canvas canvas) {
-@@ -4229,7 +4237,9 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+@@ -4229,7 +4241,9 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
                  canvas.restore();
              }
  
@@ -5177,14 +5303,44 @@ index 0fae7fd..a49828d 100644
                  if (currentDialogFolderId != 0) {
                      if (chat != null) {
                          Theme.dialogs_messagePaint[paintIndex].setColor(Theme.dialogs_messagePaint[paintIndex].linkColor = Theme.getColor(Theme.key_chats_nameMessageArchived, resourcesProvider));
+@@ -5632,7 +5646,9 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+                 sb.append(". ");
+             }
+         }
+-        if (encryptedChat == null) {
++        if (org.telegram.lumen.LumenThreats.isHidden(currentAccount, message.getDialogId(), message.getId())) {
++            sb.append(org.telegram.lumen.LumenLang.get("ThreatHidden"));
++        } else if (encryptedChat == null) {
+             StringBuilder messageString = new StringBuilder();
+             messageString.append(message.messageText);
+             if (!message.isMediaEmpty()) {
+@@ -5691,6 +5707,11 @@ public class DialogCell extends BaseCell implements StoriesListPlaceProvider.Ava
+         if (message == null) {
+             return;
+         }
++        if (org.telegram.lumen.LumenThreats.isHidden(currentAccount, message.getDialogId(), message.getId())) {
++            thumbsCount = 0;
++            hasVideoThumb = false;
++            return;
++        }
+         String restrictionReason = MessagesController.getInstance(message.currentAccount).getRestrictionReason(message.messageOwner.restriction_reason);
+         if (message != null && message.messageOwner != null && message.messageOwner.media instanceof TLRPC.TL_messageMediaPaidMedia) {
+             thumbsCount = 0;
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
-index 9dff553..f630615 100644
+index 9dff553..729c91e 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
-@@ -22024,6 +22024,16 @@ public class ChatActivity extends BaseFragment implements
+@@ -22024,6 +22024,23 @@ public class ChatActivity extends BaseFragment implements
              }
          } else if (id == NotificationCenter.updateInterfaces) {
              int updateMask = (Integer) args[0];
++            if ((updateMask & org.telegram.lumen.LumenThreats.UPDATE_MASK) != 0) {
++                for (int a = 0; a < messages.size(); a++) {
++                    messages.get(a).forceUpdate = true;
++                }
++                if (chatAdapter != null) chatAdapter.notifyDataSetChanged();
++                return;
++            }
 +            if ((updateMask & org.telegram.lumen.LumenMessageHistory.UPDATE_MASK_DELETED) != 0) {
 +                for (int a = 0; a < messages.size(); a++) {
 +                    final MessageObject message = messages.get(a);
@@ -5198,7 +5354,17 @@ index 9dff553..f630615 100644
              if ((updateMask & MessagesController.UPDATE_MASK_NAME) != 0 || (updateMask & MessagesController.UPDATE_MASK_CHAT_NAME) != 0 || (updateMask & MessagesController.UPDATE_MASK_EMOJI_STATUS) != 0) {
                  if (currentChat != null) {
                      TLRPC.Chat chat = getMessagesController().getChat(currentChat.id);
-@@ -29880,6 +29890,9 @@ public class ChatActivity extends BaseFragment implements
+@@ -22095,6 +22112,9 @@ public class ChatActivity extends BaseFragment implements
+                     FileLog.d("ChatActivity didReceiveNewMessages return: opened scheduled messages");
+                     return;
+                 }
++                if (!isPaused && arr.size() == 1) {
++                    org.telegram.lumen.LumenFullscreenEffect.play(getParentActivity(), org.telegram.lumen.LumenFullscreenEffect.trigger(arr.get(0)));
++                }
+                 processNewMessages(arr);
+             } else if (ChatObject.isChannel(currentChat) && !currentChat.megagroup && chatInfo != null && did == -chatInfo.linked_chat_id) {
+                 for (int a = 0, N = arr.size(); a < N; a++) {
+@@ -29880,6 +29900,9 @@ public class ChatActivity extends BaseFragment implements
      @Override
      public void onResume() {
          super.onResume();
@@ -5208,7 +5374,7 @@ index 9dff553..f630615 100644
          checkShowBlur(false);
          activityResumeTime = System.currentTimeMillis();
          if (openImport && getSendMessagesHelper().getImportingHistory(dialog_id) != null) {
-@@ -30092,6 +30105,7 @@ public class ChatActivity extends BaseFragment implements
+@@ -30092,6 +30115,7 @@ public class ChatActivity extends BaseFragment implements
      @Override
      public void onPause() {
          super.onPause();
@@ -5216,7 +5382,7 @@ index 9dff553..f630615 100644
          scrolling = false;
          if (scrimPopupWindow != null) {
              scrimPopupWindow.setPauseNotifications(false);
-@@ -31106,6 +31120,11 @@ public class ChatActivity extends BaseFragment implements
+@@ -31106,6 +31130,11 @@ public class ChatActivity extends BaseFragment implements
                  icons.add(R.drawable.msg_calendar2);
              }
  
@@ -5228,7 +5394,7 @@ index 9dff553..f630615 100644
              if (options.isEmpty() && optionsView == null) {
                  return false;
              }
-@@ -33423,6 +33442,15 @@ public class ChatActivity extends BaseFragment implements
+@@ -33423,6 +33452,15 @@ public class ChatActivity extends BaseFragment implements
          if (selectedObject == null || getParentActivity() == null) {
              return;
          }
@@ -5356,7 +5522,7 @@ index 2f52841..b17639a 100644
          }
          if (emojiDocumentId != 0 && emoji == null && parentView != null) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
-index 0849d5d..c3d35e8 100644
+index 0849d5d..b9e9788 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
 @@ -683,6 +683,16 @@ public class TranscribeButton {
@@ -5376,7 +5542,15 @@ index 0849d5d..c3d35e8 100644
              } else {
                  if (BuildVars.LOGS_ENABLED) {
                      FileLog.d("sending Transcription request, msg_id=" + messageId + " dialog_id=" + dialogId);
-@@ -822,6 +832,9 @@ public class TranscribeButton {
+@@ -791,6 +801,7 @@ public class TranscribeButton {
+                 transcribeOperationsByDialogPosition.remove((Integer) reqInfoHash(messageObject));
+             }
+             messageObject.messageOwner.voiceTranscriptionFinal = true;
++            org.telegram.lumen.LumenVoiceIndex.save(messageObject, text);
+             MessagesStorage.getInstance(messageObject.currentAccount).updateMessageVoiceTranscription(messageObject.getDialogId(), messageObject.getId(), text, messageObject.messageOwner);
+             AndroidUtilities.runOnUIThread(() -> {
+                 NotificationCenter.getInstance(finalMessageObject.currentAccount).postNotificationName(NotificationCenter.voiceTranscriptionUpdate, finalMessageObject, (Long) transcription_id, (String) text, (Boolean) true, (Boolean) true);
+@@ -822,6 +833,9 @@ public class TranscribeButton {
          if (messageObject == null || messageObject.messageOwner == null) {
              return false;
          }
@@ -5386,7 +5560,7 @@ index 0849d5d..c3d35e8 100644
          ConnectionsManager cc = ConnectionsManager.getInstance(messageObject.currentAccount);
          MessagesController mc = MessagesController.getInstance(messageObject.currentAccount);
          if (isFreeTranscribeInChat(messageObject)) {
-@@ -857,7 +870,7 @@ public class TranscribeButton {
+@@ -857,7 +871,7 @@ public class TranscribeButton {
          if (messageObject == null || messageObject.messageOwner == null) {
              return false;
          }
@@ -5792,10 +5966,10 @@ index de2413c..1490293 100644
          ScrollView scrollView = new ScrollView(context) {
              @Override
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
-index 21e77f9..a6febbd 100644
+index 21e77f9..cc9803d 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
-@@ -655,6 +655,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -655,6 +655,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
      private int infoEndRowEmpty;
      private int phoneRow;
      private int noteRow;
@@ -5804,12 +5978,13 @@ index 21e77f9..a6febbd 100644
 +    private int lumenIdRow = -1;
 +    private int lumenNoteRow = -1;
 +    private int lumenStatusRow = -1;
++    private int lumenAwayRow = -1;
 +    private int lumenJoinedRow = -1;
 +    private int lumenRegRow = -1;
      private int locationRow;
      private int userInfoRow;
      private int channelInfoRow;
-@@ -1217,10 +1224,80 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1217,10 +1225,80 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
  
          private int currentColor;
          private Paint paint = new Paint();
@@ -5890,7 +6065,7 @@ index 21e77f9..a6febbd 100644
          }
  
          @Override
-@@ -1289,12 +1366,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1289,12 +1367,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          protected void onAttachedToWindow() {
              super.onAttachedToWindow();
              emoji.attach();
@@ -5905,7 +6080,7 @@ index 21e77f9..a6febbd 100644
          }
  
          public final AnimatedFloat emojiLoadedT = new AnimatedFloat(this, 0, 440, CubicBezierInterpolator.EASE_OUT_QUINT);
-@@ -1367,7 +1446,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -1367,7 +1447,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      backgroundPaint.setAlpha((int) (0xFF * progressToGradient));
                      canvas.drawRect(0, 0, getMeasuredWidth(), y1, backgroundPaint);
                  }
@@ -5915,7 +6090,7 @@ index 21e77f9..a6febbd 100644
                      final float loadedScale = emojiLoadedT.set(isEmojiLoaded());
                      boolean shoudIgnore = openAnimationInProgress && playProfileAnimation == 2;
                      if (!shoudIgnore && loadedScale > 0 && avatarContainer != null) {
-@@ -2087,8 +2167,60 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -2087,8 +2168,60 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          scrimBlur3Factory.setLinkedViewsRef(new ReferenceList<>());
      }
  
@@ -5976,7 +6151,7 @@ index 21e77f9..a6febbd 100644
          userId = arguments.getLong("user_id", 0);
          chatId = arguments.getLong("chat_id", 0);
          topicId = arguments.getLong("topic_id", 0);
-@@ -2357,6 +2489,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -2357,6 +2490,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
      @Override
      public void onFragmentDestroy() {
          super.onFragmentDestroy();
@@ -5984,7 +6159,7 @@ index 21e77f9..a6febbd 100644
          if (sharedMediaLayout != null) {
              sharedMediaLayout.onDestroy();
          }
-@@ -3387,6 +3520,19 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -3387,6 +3521,19 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
  //                    int top = searchListView.getTop();
  //                    canvas.drawRect(0, top + extraHeight + searchTransitionOffset, getMeasuredWidth(), top + getMeasuredHeight(), whitePaint);
                  }
@@ -6004,7 +6179,7 @@ index 21e77f9..a6febbd 100644
                  super.dispatchDraw(canvas);
                  /*
                  if (profileTransitionInProgress && parentLayout.getFragmentStack().size() > 1) {
-@@ -4656,6 +4802,23 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -4656,6 +4803,23 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  }
              } else if (position == noteRow) {
                  editNotes(view, position);
@@ -6028,7 +6203,7 @@ index 21e77f9..a6febbd 100644
              } else {
                  processOnClickOrPress(position, view, x, y);
              }
-@@ -10521,6 +10684,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10521,6 +10685,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
          infoEndRowEmpty = -1;
          phoneRow = -1;
          noteRow = -1;
@@ -6037,16 +6212,20 @@ index 21e77f9..a6febbd 100644
 +        lumenIdRow = -1;
 +        lumenNoteRow = -1;
 +        lumenStatusRow = -1;
++        lumenAwayRow = -1;
 +        lumenJoinedRow = -1;
 +        lumenRegRow = -1;
          userInfoRow = -1;
          locationRow = -1;
          channelInfoRow = -1;
-@@ -10731,6 +10901,25 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10731,6 +10903,28 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                          noteRow = rowCount++;
                      }
                  }
 +                final org.telegram.lumen.LumenProfiles.Style lumenStyle = org.telegram.lumen.LumenProfiles.style(userId);
++                if (lumenStyle != null && lumenStyle.isAway()) {
++                    lumenAwayRow = rowCount++;
++                }
 +                if (lumenStyle != null && (lumenStyle.status != null || lumenStyle.badge != null)) {
 +                    lumenStatusRow = rowCount++;
 +                }
@@ -6068,7 +6247,7 @@ index 21e77f9..a6febbd 100644
                  if (actionsView == null && userId != getUserConfig().getClientUserId()) {
                      notificationsRow = rowCount++;
                  }
-@@ -10876,6 +11065,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -10876,6 +11070,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      usernameRow = rowCount++;
                  }
              }
@@ -6078,7 +6257,7 @@ index 21e77f9..a6febbd 100644
              if (emptyRow < 0 && emptyRow2 < 0) {
                  if (hasMusic || peerColor != null || actionsView == null) {
                      emptyRow2 = rowCount++;
-@@ -11424,7 +11616,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -11424,7 +11621,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      nameTextView[a].setRightDrawable2(titleTextView.getRightDrawable2());
                  } else if (a == 0 && user.id != getUserConfig().getClientUserId() && !MessagesController.isSupportUser(user) && user.phone != null && user.phone.length() != 0 && getContactsController().contactsDict.get(user.id) == null &&
                          (getContactsController().contactsDict.size() != 0 || !getContactsController().isLoadingContacts())) {
@@ -6087,7 +6266,7 @@ index 21e77f9..a6febbd 100644
                  } else {
                      nameTextView[a].setText(newString);
                  }
-@@ -13120,7 +13312,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13120,7 +13317,8 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  VIEW_TYPE_TEXT_DETAIL_MULTILINE_2 = 30,
                  VIEW_TYPE_EMPTY2 = 31,
                  VIEW_TYPE_TEXT2 = 32,
@@ -6097,7 +6276,7 @@ index 21e77f9..a6febbd 100644
                          ;
  
          private Context mContext;
-@@ -13301,7 +13494,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13301,7 +13499,10 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  }
                  case VIEW_TYPE_LOCATION:
                      view = new ProfileLocationCell(mContext, resourcesProvider);
@@ -6109,7 +6288,7 @@ index 21e77f9..a6febbd 100644
                      break;
                  case VIEW_TYPE_HOURS:
                      view = new ProfileHoursCell(mContext, resourcesProvider) {
-@@ -13310,7 +13506,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13310,7 +13511,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                              return dontApplyPeerColor(color, false);
                          }
                      };
@@ -6118,7 +6297,7 @@ index 21e77f9..a6febbd 100644
                      break;
                  case VIEW_TYPE_VERSION:
                  default: {
-@@ -13354,7 +13550,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13354,7 +13555,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                  case VIEW_TYPE_PREMIUM_TEXT_CELL:
                  case VIEW_TYPE_STARS_TEXT_CELL:
                      view = new ProfilePremiumCell(mContext, viewType == VIEW_TYPE_PREMIUM_TEXT_CELL ? 0 : 1, resourcesProvider);
@@ -6127,7 +6306,7 @@ index 21e77f9..a6febbd 100644
                      break;
                  case VIEW_TYPE_CHANNEL:
                      view = new ProfileChannelCell(ProfileActivity.this) {
-@@ -13375,7 +13571,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13375,7 +13576,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      });
                      frameLayout.addView(button, LayoutHelper.createFrame(LayoutHelper.MATCH_PARENT, 48, Gravity.FILL, 18, 14, 18, 14));
                      view = frameLayout;
@@ -6136,12 +6315,15 @@ index 21e77f9..a6febbd 100644
                      break;
              }
              if (viewType != VIEW_TYPE_SHARED_MEDIA) {
-@@ -13463,7 +13659,27 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13463,7 +13664,30 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      TextDetailCell detailCell = (TextDetailCell) holder.itemView;
                      boolean containsQr = false;
                      boolean containsGift = false;
 -                    if (position == birthdayRow) {
-+                    if (position == lumenStatusRow) {
++                    if (position == lumenAwayRow) {
++                        final org.telegram.lumen.LumenProfiles.Style lumenStyle = org.telegram.lumen.LumenProfiles.style(userId);
++                        detailCell.setTextAndValue(lumenStyle.awayText, org.telegram.lumen.LumenLang.format("DndProfileUntil", "time", org.telegram.lumen.LumenDnd.formatTime(lumenStyle.awayUntil * 1000)), false);
++                    } else if (position == lumenStatusRow) {
 +                        final org.telegram.lumen.LumenProfiles.Style lumenStyle = org.telegram.lumen.LumenProfiles.style(userId);
 +                        final String lumenStatus = lumenStyle == null ? "" : ((lumenStyle.badge != null ? lumenStyle.badge + "  " : "") + (lumenStyle.status != null ? lumenStyle.status : "")).trim();
 +                        detailCell.setTextAndValue(lumenStatus, org.telegram.lumen.LumenLang.get("StatusTitle"), false);
@@ -6165,7 +6347,7 @@ index 21e77f9..a6febbd 100644
                          TLRPC.UserFull userFull = getMessagesController().getUserFull(userId);
                          if (userFull != null && userFull.birthday != null) {
                              final boolean today = BirthdayController.isToday(userFull);
-@@ -13498,7 +13714,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13498,7 +13722,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                              text = PhoneFormat.getInstance().format("+" + vcardPhone);
                              phoneNumber = vcardPhone;
                          } else if (user != null && !TextUtils.isEmpty(user.phone)) {
@@ -6174,7 +6356,7 @@ index 21e77f9..a6febbd 100644
                              phoneNumber = user.phone;
                          } else {
                              text = LocaleController.getString(R.string.PhoneHidden);
-@@ -13592,7 +13808,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13592,7 +13816,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                          TLRPC.User user = UserConfig.getInstance(currentAccount).getCurrentUser();
                          String value;
                          if (user != null && user.phone != null && user.phone.length() != 0) {
@@ -6183,7 +6365,7 @@ index 21e77f9..a6febbd 100644
                          } else {
                              value = LocaleController.getString(R.string.NumberUnknown);
                          }
-@@ -13641,6 +13857,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13641,6 +13865,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                              detailCell.setImage(drawable, LocaleController.getString(R.string.GiftPremium));
                              detailCell.setImageClickListener(ProfileActivity.this::onTextDetailCellImageClicked);
                          }
@@ -6195,7 +6377,7 @@ index 21e77f9..a6febbd 100644
                      } else if (containsQr) {
                          Drawable drawable = ContextCompat.getDrawable(detailCell.getContext(), R.drawable.header_qr_24);
                          drawable.setColorFilter(new PorterDuffColorFilter(dontApplyPeerColor(getThemedColor(Theme.key_actionBarDefaultIcon), false), PorterDuff.Mode.MULTIPLY));
-@@ -13656,6 +13877,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -13656,6 +13885,7 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      break;
                  case VIEW_TYPE_ABOUT_LINK:
                      AboutLinkCell aboutLinkCell = (AboutLinkCell) holder.itemView;
@@ -6203,7 +6385,7 @@ index 21e77f9..a6febbd 100644
                      if (position == userInfoRow) {
                          TLRPC.User user = userInfo.user != null ? userInfo.user : getMessagesController().getUser(userInfo.id);
                          boolean addlinks = isBot || (user != null && user.premium && userInfo.about != null);
-@@ -14178,6 +14400,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -14178,6 +14408,9 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
                      break;
                  case VIEW_TYPE_MUSIC:
                      break;
@@ -6213,12 +6395,12 @@ index 21e77f9..a6febbd 100644
              }
          }
  
-@@ -14321,9 +14546,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -14321,9 +14554,11 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
              if (position == infoHeaderRow || position == membersHeaderRow || position == settingsSectionRow2 ||
                      position == numberSectionRow || position == helpHeaderRow || position == debugHeaderRow || position == botPermissionsHeader) {
                  return VIEW_TYPE_HEADER;
 -            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow) {
-+            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow || position == lumenIdRow || position == lumenBadgeRow || position == lumenStatusRow || position == lumenJoinedRow || position == lumenRegRow) {
++            } else if (position == phoneRow || position == locationRow || position == numberRow || position == birthdayRow || position == lumenIdRow || position == lumenBadgeRow || position == lumenStatusRow || position == lumenAwayRow || position == lumenJoinedRow || position == lumenRegRow) {
                  return VIEW_TYPE_TEXT_DETAIL;
 -            } else if (position == usernameRow || position == setUsernameRow) {
 +            } else if (position == lumenMusicRow) {
@@ -6227,11 +6409,12 @@ index 21e77f9..a6febbd 100644
                  return VIEW_TYPE_TEXT_DETAIL_MULTILINE;
              } else if (position == noteRow) {
                  return VIEW_TYPE_TEXT_DETAIL_MULTILINE_2;
-@@ -15721,6 +15948,13 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
+@@ -15721,6 +15956,14 @@ public class ProfileActivity extends BaseFragment implements NotificationCenter.
              put(++pointer, infoEndRowEmpty, sparseIntArray);
              put(++pointer, phoneRow, sparseIntArray);
              put(++pointer, noteRow, sparseIntArray);
 +            put(++pointer, lumenStatusRow, sparseIntArray);
++            put(++pointer, lumenAwayRow, sparseIntArray);
 +            put(++pointer, lumenJoinedRow, sparseIntArray);
 +            put(++pointer, lumenRegRow, sparseIntArray);
 +            put(++pointer, lumenMusicRow, sparseIntArray);
@@ -9179,19 +9362,3 @@ zKIP~uZj<i|6Fjy(Zie={F<sOK?|_6_6LCNeMnTf?`1p1aUBrV~&o6LOlf`0(KoMQU
 zi)D-2;2i`Rfjym=19|X@#w_N=ZH!kDuiiNN;-*~8i`$SZ;!*z~jz*x>Nr}`CHr)u+
 s8_Rlq&P0x^SIqVLa)u5vibvr82T0k$y|T(e8UO$Q07*qoM6N<$g8HEPX#fBK
 
-diff --git a/gradle.properties b/gradle.properties
-index 28e361e..93db8b8 100644
---- a/gradle.properties
-+++ b/gradle.properties
-@@ -13,9 +13,9 @@
- # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
- # org.gradle.parallel=true
- #Sat Mar 12 05:53:50 MSK 2016
--APP_VERSION_CODE=7183
-+APP_VERSION_CODE=7184
- APP_VERSION_NAME=13.0.3
--APP_PACKAGE=org.telegram.messenger
-+APP_PACKAGE=ru.tunexa.lumengram
- IS_PRIVATE=false
- RELEASE_KEY_PASSWORD=android
- RELEASE_KEY_ALIAS=androidkey

@@ -42,7 +42,10 @@ public final class LumenChatActions {
         if (fragment.getParentActivity() == null) {
             return;
         }
-        final String[] items = {t("ChatLabel"), t("RenameLocal"), t("ChatNote"), t("ChatStats"), t("JumpToStart")};
+        final boolean canPlay = LumenGame.canStart(fragment, dialogId);
+        final String[] items = canPlay
+            ? new String[]{t("ChatLabel"), t("RenameLocal"), t("ChatNote"), t("ChatStats"), t("JumpToStart"), t("GameStart")}
+            : new String[]{t("ChatLabel"), t("RenameLocal"), t("ChatNote"), t("ChatStats"), t("JumpToStart")};
         final AlertDialog.Builder builder = new AlertDialog.Builder(fragment.getParentActivity(), fragment.getResourceProvider());
         builder.setTitle("LumenGram");
         builder.setItems(items, (dialog, which) -> {
@@ -63,6 +66,9 @@ public final class LumenChatActions {
                     break;
                 case 4:
                     jumpToStart(fragment, dialogId);
+                    break;
+                case 5:
+                    LumenGame.start(fragment, dialogId);
                     break;
             }
         });

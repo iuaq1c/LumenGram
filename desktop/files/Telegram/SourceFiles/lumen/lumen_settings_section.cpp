@@ -5,6 +5,7 @@ For license and copyright information please follow this link:
 https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 */
 #include "lumen/lumen_settings_section.h"
+#include "lumen/lumen_new_features.h"
 
 #include "core/application.h"
 #include "core/click_handler_types.h"
@@ -13,6 +14,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lang/lang_keys.h"
 #include "lumen/lumen_app_icon.h"
 #include "lumen/lumen_auto_reply.h"
+#include "lumen/lumen_dnd.h"
+#include "lumen/lumen_fullscreen_effect.h"
 #include "lumen/lumen_bookmarks.h"
 #include "lumen/lumen_branding.h"
 #include "lumen/lumen_connection.h"
@@ -23,6 +26,8 @@ https://github.com/telegramdesktop/tdesktop/blob/master/LEGAL
 #include "lumen/lumen_profile_ui.h"
 #include "lumen/lumen_settings.h"
 #include "lumen/lumen_transcribe.h"
+#include "lumen/lumen_voice_index.h"
+#include "lumen/lumen_wrapped.h"
 #include "lumen/lumen_templates.h"
 #include "lumen/lumen_undo_send.h"
 #include "mainwindow.h"
@@ -518,6 +523,14 @@ void AddMessageOptions(SectionBuilder &builder) {
 		{ u"edited"_q, u"edits"_q, u"history"_q });
 	AddMessageToggle(
 		builder,
+		u"lumengram/fullscreen-effects"_q,
+		tr::lng_lumen_fullscreen_effects(),
+		&st::menuIconReactions,
+		Lumen::FullscreenEffects,
+		Lumen::SetFullscreenEffects,
+		{ u"emoji"_q, u"effects"_q, u"fireworks"_q });
+	AddMessageToggle(
+		builder,
 		u"lumengram/local-transcribe"_q,
 		tr::lng_lumen_local_transcribe(),
 		&st::menuIconTranslate,
@@ -548,6 +561,125 @@ void ShowAutoReplyTextBox(not_null<Window::SessionController*> controller) {
 		box->addButton(tr::lng_settings_save(), save);
 		box->addButton(tr::lng_cancel(), [=] { box->closeBox(); });
 	}));
+}
+
+void ShowDndTimeBox(
+		not_null<Window::SessionController*> controller,
+		QString status,
+		QTime initial) {
+	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+		box->setTitle(tr::lng_lumen_dnd_until_pick());
+		const auto field = box->addRow(object_ptr<Ui::InputField>(
+			box,
+			st::defaultInputField,
+			tr::lng_lumen_dnd_time_hint(),
+			initial.toString(u"HH:mm"_q)));
+		box->setFocusCallback([=] { field->setFocusFast(); });
+		const auto save = [=] {
+			const auto time = QTime::fromString(
+				field->getLastText().trimmed(),
+				u"H:mm"_q);
+			if (!time.isValid()) {
+				field->showError();
+				return;
+			}
+			const auto show = controller->uiShow();
+			Lumen::StartDnd(&controller->session(), status, time, [=](
+					QString error) {
+				show->showToast(error);
+			});
+			box->closeBox();
+		};
+		field->submits() | rpl::on_next(save, field->lifetime());
+		box->addButton(tr::lng_lumen_dnd_start(), save);
+		box->addButton(tr::lng_cancel(), [=] { box->closeBox(); });
+	}));
+}
+
+void ShowDndBox(not_null<Window::SessionController*> controller) {
+	if (Lumen::DndActive()) {
+		Lumen::StopDnd(&controller->session());
+		return;
+	}
+	const auto presets = Lumen::DndPresets();
+	auto options = presets;
+	options.push_back(tr::lng_lumen_dnd_custom(tr::now));
+	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+		SingleChoiceBox(box, {
+			.title = tr::lng_lumen_dnd_title(),
+			.options = options,
+			.initialSelection = 0,
+			.callback = [=](int index) {
+				const auto inHour = QTime(
+					QTime::currentTime().addSecs(3600).hour(),
+					0);
+				if (index < int(presets.size())) {
+					ShowDndTimeBox(
+						controller,
+						presets[index],
+						index ? inHour : QTime(8, 0));
+					return;
+				}
+				controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+					box->setTitle(tr::lng_lumen_dnd_custom());
+					const auto field = box->addRow(object_ptr<Ui::InputField>(
+						box,
+						st::defaultInputField,
+						tr::lng_lumen_dnd_custom_hint()));
+					field->setMaxLength(70);
+					box->setFocusCallback([=] { field->setFocusFast(); });
+					const auto next = [=] {
+						const auto text = field->getLastText().trimmed();
+						if (text.isEmpty()) {
+							field->showError();
+							return;
+						}
+						box->closeBox();
+						ShowDndTimeBox(controller, text, inHour);
+					};
+					field->submits() | rpl::on_next(next, field->lifetime());
+					box->addButton(tr::lng_lumen_dnd_next(), next);
+					box->addButton(tr::lng_cancel(), [=] { box->closeBox(); });
+				}));
+			},
+		});
+	}));
+}
+
+void AddDndOptions(SectionBuilder &builder) {
+	const auto controller = builder.controller();
+	builder.addSkip();
+	builder.addSubsectionTitle({
+		.id = u"lumengram/dnd"_q,
+		.title = tr::lng_lumen_dnd_title(),
+		.keywords = { u"dnd"_q, u"status"_q, u"busy"_q, u"sleep"_q },
+	});
+	if (controller) {
+		builder.addButton({
+			.id = u"lumengram/dnd-status"_q,
+			.title = Lumen::DndActiveValue() | rpl::map([](bool active) {
+				return active
+					? Lumen::DndStatusLine()
+					: tr::lng_lumen_dnd_set(tr::now);
+			}),
+			.icon = { &st::menuIconMute },
+			.label = Lumen::DndActiveValue() | rpl::map([](bool active) {
+				return active ? tr::lng_lumen_dnd_stop(tr::now) : QString();
+			}),
+			.onClick = [=] { ShowDndBox(controller); },
+			.keywords = { u"dnd"_q, u"status"_q },
+		});
+	}
+	AddMessageToggle(
+		builder,
+		u"lumengram/dnd-reply"_q,
+		tr::lng_lumen_dnd_reply_toggle(),
+		&st::menuIconReply,
+		Lumen::DndAutoReply,
+		Lumen::SetDndAutoReply,
+		{ u"dnd"_q, u"reply"_q });
+	builder.addSkip();
+	builder.addDividerText(tr::lng_lumen_dnd_about());
 }
 
 void AddAutoReplyOptions(SectionBuilder &builder) {
@@ -860,6 +992,32 @@ void AddTools(SectionBuilder &builder) {
 		.onClick = [=] { Lumen::ShowTemplates(controller); },
 		.keywords = { u"templates"_q, u"snippets"_q, u"quick"_q },
 	});
+	builder.addButton({
+		.id = u"lumengram/wrapped"_q,
+		.title = tr::lng_lumen_wrapped_title(
+			lt_year,
+			rpl::single(QString::number(QDate::currentDate().year()))),
+		.icon = { &st::menuIconStats },
+		.onClick = [=] { Lumen::ShowWrapped(controller); },
+		.keywords = { u"wrapped"_q, u"year"_q, u"stats"_q },
+	});
+	builder.addButton({
+		.id = u"lumengram/voice-search"_q,
+		.title = tr::lng_lumen_voice_search_title(),
+		.icon = { &st::menuIconSearch },
+		.onClick = [=] { Lumen::ShowVoiceSearch(controller); },
+		.keywords = { u"voice"_q, u"search"_q, u"transcription"_q },
+	});
+	builder.addButton({
+		.id = u"lumengram/listening"_q,
+		.title = tr::lng_lumen_listening_web(),
+		.icon = { &st::menuIconLink },
+		.onClick = [] {
+			UrlClickHandler::Open(u"https://tunexa.ru/lumengram/listen"_q);
+		},
+		.keywords = { u"music"_q, u"listen"_q, u"spotify"_q, u"jam"_q },
+		.shown = Lumen::FeatureEnabledValue("listening", true),
+	});
 	builder.addSkip();
 	builder.addDividerText(tr::lng_lumen_tools_about());
 	builder.addSkip();
@@ -897,6 +1055,114 @@ void AddLinks(SectionBuilder &builder) {
 		.onClick = [] { UrlClickHandler::Open(Lumen::kWebsite.utf16()); },
 		.keywords = { u"website"_q, u"docs"_q, u"tunexa"_q },
 	});
+}
+
+void ShowFeatureTextBox(
+		not_null<Window::SessionController*> controller,
+		std::string key,
+		rpl::producer<QString> title) {
+	controller->show(Box([=, title = std::move(title)](not_null<Ui::GenericBox*> box) mutable {
+		box->setTitle(std::move(title));
+		const auto field = box->addRow(object_ptr<Ui::InputField>(box, st::defaultInputField,
+			Ui::InputField::Mode::MultiLine, rpl::single(QString()), Lumen::FeatureText(key)));
+		field->setMaxLength(40000);
+		box->setFocusCallback([=] { field->setFocusFast(); });
+		box->addButton(tr::lng_settings_save(), [=] {
+			Lumen::SetFeatureText(key, field->getLastText());
+			box->closeBox();
+		});
+		box->addButton(tr::lng_cancel(), [=] { box->closeBox(); });
+	}));
+}
+
+void ShowTransferModeBox(not_null<Window::SessionController*> controller, bool upload) {
+	const auto key = upload ? "upload" : "download";
+	const auto options = std::vector<QString>{
+		tr::lng_lumen_boost_off(tr::now), tr::lng_lumen_boost_auto(tr::now),
+		tr::lng_lumen_boost_fast(tr::now), tr::lng_lumen_boost_eco(tr::now),
+	};
+	controller->show(Box([=](not_null<Ui::GenericBox*> box) {
+		SingleChoiceBox(box, {
+			.title = upload ? tr::lng_lumen_boost_upload() : tr::lng_lumen_boost_download(),
+			.options = options,
+			.initialSelection = Lumen::FeatureMode(key),
+			.callback = [=](int index) { Lumen::SetFeatureMode(key, index); },
+		});
+	}));
+}
+
+void AddNewFeatureOptions(SectionBuilder &builder) {
+	const auto controller = builder.controller();
+	if (!controller) {
+		return;
+	}
+	builder.addSubsectionTitle({
+		.id = u"lumengram/new-features"_q,
+		.title = tr::lng_lumen_features_title(),
+		.keywords = { u"portal"_q, u"threat"_q, u"boost"_q, u"music"_q },
+	});
+	AddMessageToggle(builder, u"lumengram/listen-enabled"_q, tr::lng_lumen_listen_title(), &st::menuIconLink,
+		[] { return Lumen::FeatureEnabled("listening", true); },
+		[](bool enabled) { Lumen::SetFeatureEnabled("listening", enabled); }, { u"listen"_q });
+	AddMessageToggle(builder, u"lumengram/portal-enabled"_q, tr::lng_lumen_portal_title(), &st::menuIconLink,
+		[] { return Lumen::FeatureEnabled("portal"); },
+		[](bool enabled) { Lumen::SetFeatureEnabled("portal", enabled); }, { u"portal"_q });
+	builder.addButton({
+		.id = u"lumengram/portal-web"_q,
+		.title = tr::lng_lumen_portal_web(),
+		.icon = { &st::menuIconLink },
+		.onClick = [] { UrlClickHandler::Open(u"https://web.tunexa.ru/?listen=new&mode=portal"_q); },
+		.shown = Lumen::FeatureEnabledValue("portal"),
+	});
+	AddMessageToggle(builder, u"lumengram/threats"_q, tr::lng_lumen_threat_title(), &st::menuIconLock,
+		[] { return Lumen::FeatureEnabled("threats"); },
+		[](bool enabled) { Lumen::SetFeatureEnabled("threats", enabled); }, { u"threat"_q, u"block"_q });
+	builder.addButton({
+		.id = u"lumengram/threat-phrases"_q,
+		.title = tr::lng_lumen_threat_phrases(),
+		.icon = { &st::menuIconEdit },
+		.onClick = [=] { ShowFeatureTextBox(controller, "phrases", tr::lng_lumen_threat_phrases()); },
+		.shown = Lumen::FeatureEnabledValue("threats"),
+	});
+	builder.addButton({
+		.id = u"lumengram/threat-exceptions"_q,
+		.title = tr::lng_lumen_threat_exceptions(),
+		.icon = { &st::menuIconEdit },
+		.onClick = [=] { ShowFeatureTextBox(controller, "exceptions", tr::lng_lumen_threat_exceptions()); },
+		.shown = Lumen::FeatureEnabledValue("threats"),
+	});
+	AddMessageToggle(builder, u"lumengram/threat-substring"_q, tr::lng_lumen_threat_substring(), &st::menuIconSearch,
+		[] { return Lumen::FeatureMode("match") != 0; },
+		[](bool enabled) { Lumen::SetFeatureMode("match", enabled ? 1 : 0); }, { u"match"_q });
+	AddMessageToggle(builder, u"lumengram/threat-auto-block"_q, tr::lng_lumen_threat_block(), &st::menuIconLock,
+		[] { return Lumen::FeatureMode("threat_mode") != 0; },
+		[](bool enabled) { Lumen::SetFeatureMode("threat_mode", enabled ? 1 : 0); }, { u"block"_q });
+	AddMessageToggle(builder, u"lumengram/threat-contacts"_q, tr::lng_lumen_threat_contacts(), &st::menuIconGroups,
+		[] { return Lumen::FeatureEnabled("trust_contacts", true); },
+		[](bool enabled) { Lumen::SetFeatureEnabled("trust_contacts", enabled); }, { u"contacts"_q });
+	builder.addButton({
+		.id = u"lumengram/threat-log"_q,
+		.title = tr::lng_lumen_threat_log(),
+		.icon = { &st::menuIconInfo },
+		.onClick = [=] { Lumen::ShowThreatLog(controller); },
+	});
+	builder.addDividerText(tr::lng_lumen_threat_about());
+	builder.addButton({
+		.id = u"lumengram/boost-download"_q,
+		.title = tr::lng_lumen_boost_download(),
+		.icon = { &st::menuIconDownload },
+		.onClick = [=] { ShowTransferModeBox(controller, false); },
+	});
+	builder.addButton({
+		.id = u"lumengram/boost-upload"_q,
+		.title = tr::lng_lumen_boost_upload(),
+		.icon = { &st::menuIconShare },
+		.onClick = [=] { ShowTransferModeBox(controller, true); },
+	});
+	AddMessageToggle(builder, u"lumengram/boost-wifi"_q, tr::lng_lumen_boost_wifi(), &st::menuIconNetwork,
+		[] { return Lumen::FeatureEnabled("wifi_only"); },
+		[](bool enabled) { Lumen::SetFeatureEnabled("wifi_only", enabled); }, { u"wifi"_q });
+	builder.addDividerText(tr::lng_lumen_boost_about());
 }
 
 void BuildLumengramSection(SectionBuilder &builder) {
@@ -949,11 +1215,13 @@ void BuildLumengramSection(SectionBuilder &builder) {
 	builder.addSkip();
 	AddPrivacyOptions(builder);
 	AddMessageOptions(builder);
+	AddDndOptions(builder);
 	AddAutoReplyOptions(builder);
 	AddChatsOptions(builder);
 	AddAppIconPicker(builder);
 	AddProfileOptions(builder);
 	AddTools(builder);
+	AddNewFeatureOptions(builder);
 	AddUrlScheme(builder);
 	AddLinks(builder);
 }

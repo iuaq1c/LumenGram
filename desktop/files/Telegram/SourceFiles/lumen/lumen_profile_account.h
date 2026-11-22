@@ -46,6 +46,14 @@ void UploadBanner(
 	Fail fail);
 void DeleteBanner(not_null<Main::Session*> session, Done done, Fail fail);
 
+// "Do not disturb" status for other LumenGram users, an empty text clears it.
+void SaveAway(
+	not_null<Main::Session*> session,
+	const QString &text,
+	qint64 until,
+	Done done,
+	Fail fail);
+
 void ConnectLastfm(
 	not_null<Main::Session*> session,
 	const QString &username,

@@ -1,0 +1,7 @@
+{
+  "baseRepository": "https://github.com/DrKLO/Telegram.git",
+  "baseCommit": "0aae959806c57be8ad457980f2a5c6277ff18635",
+  "patch": "working-tree.patch",
+  "build": "Gradle :TMessagesProj_AppStandalone:assembleAfatStandalone; JDK 21; Android SDK 36",
+  "excluded": "Signing keys, Telegram API environment and local machine configuration are excluded."
+}

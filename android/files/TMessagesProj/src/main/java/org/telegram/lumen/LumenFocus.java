@@ -101,6 +101,9 @@ public final class LumenFocus {
         if (focusActive() && !allowedInFocus(account, dialogId)) {
             return true;
         }
+        if (LumenDnd.active()) {
+            return !(LumenConfig.getBool(QUIET_ALLOW_PINNED) && isPinned(account, dialogId));
+        }
         return quietNow() && !(LumenConfig.getBool(QUIET_ALLOW_PINNED) && isPinned(account, dialogId));
     }
 

@@ -58,9 +58,16 @@ public final class LumenProfiles {
         public String effect;
         public String status;
         public String badge;
+        // "Do not disturb" status and the unix time it ends
+        public String awayText;
+        public long awayUntil;
 
         public boolean isEmpty() {
-            return accent == null && effect == null && status == null && badge == null;
+            return accent == null && effect == null && status == null && badge == null && awayText == null;
+        }
+
+        public boolean isAway() {
+            return awayText != null && awayUntil * 1000 > System.currentTimeMillis();
         }
     }
 
@@ -160,6 +167,14 @@ public final class LumenProfiles {
         if (!badge.isEmpty() && badge.length() <= BADGE_MAX) {
             style.badge = badge;
         }
+        final JSONObject away = entry.optJSONObject("away");
+        if (away != null) {
+            final String text = away.optString("text", "").trim();
+            if (!text.isEmpty()) {
+                style.awayText = text.length() > STATUS_MAX ? text.substring(0, STATUS_MAX) : text;
+                style.awayUntil = away.optLong("until", 0);
+            }
+        }
         return style;
     }
 
@@ -203,6 +218,11 @@ public final class LumenProfiles {
 
     private static void setToken(String token) {
         LumenConfig.setString(tokenKey(), token);
+    }
+
+    public static void refreshNow() {
+        lastRefresh = 0;
+        refresh();
     }
 
     public static void refresh() {

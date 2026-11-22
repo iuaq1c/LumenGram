@@ -37,7 +37,16 @@ public class LumenAutoReply {
         return LumenConfig.getBool(FOCUS_ONLY);
     }
 
+    public static final String DND_REPLY = "dndAutoReply";
+
+    public static boolean dndReply() {
+        return LumenConfig.prefs().getBoolean(DND_REPLY, true);
+    }
+
     public static String text() {
+        if (LumenDnd.active() && dndReply()) {
+            return LumenLang.format("DndReply", "status", LumenDnd.statusLine());
+        }
         final String text = LumenConfig.prefs().getString(TEXT, null);
         return TextUtils.isEmpty(text) ? LumenLang.get("AutoReplyDefault") : text;
     }
@@ -47,7 +56,7 @@ public class LumenAutoReply {
     }
 
     public static boolean active() {
-        return enabled() && (!focusOnly() || LumenFocus.focusActive());
+        return enabled() && (!focusOnly() || LumenFocus.focusActive()) || LumenDnd.active() && dndReply();
     }
 
     public static void process(int account, ArrayList<MessageObject> messages) {
