@@ -184,8 +184,8 @@ LumenGram построен на исходном коде официальных
 
 | Платформа | Требования | Файл |
 |---|---|---|
-| 🪟 **Windows** | Windows 10 и 11, 64-бит | [`LumenGram-1.4.0-win64.zip`](https://github.com/iuaq1c/LumenGram/releases/latest) — портативная версия, установка не нужна |
-| 🤖 **Android** | Android 6.0 и новее | [`LumenGram-1.4.0-android.apk`](https://github.com/iuaq1c/LumenGram/releases/latest) |
+| 🪟 **Windows** | Windows 10 и 11, 64-бит | [`LumenGram-1.5.0-win64.zip`](https://github.com/iuaq1c/LumenGram/releases/latest) — портативная версия, установка не нужна |
+| 🤖 **Android** | Android 6.0 и новее | [`LumenGram-1.5.0-android.apk`](https://github.com/iuaq1c/LumenGram/releases/latest) |
 | 🌐 **Браузер** | Любой современный браузер | [**web.tunexa.ru**](https://web.tunexa.ru/) — ничего не нужно устанавливать, работает без VPN |
 
 Все файлы также доступны на сайте: **[tunexa.ru/docs/lumengram](https://tunexa.ru/docs/lumengram)**. Контрольные суммы SHA-256 указаны в описании каждого релиза — сверьте их перед установкой.

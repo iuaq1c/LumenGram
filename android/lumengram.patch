@@ -163,74 +163,105 @@ index 049c7b7..56f2c07 100644
 +-keep class org.vosk.** { *; }
 +-dontwarn java.awt.**
 diff --git a/TMessagesProj/src/main/AndroidManifest.xml b/TMessagesProj/src/main/AndroidManifest.xml
-index 63c819b..255fc7f 100644
+index 63c819b..7f40e0d 100644
 --- a/TMessagesProj/src/main/AndroidManifest.xml
 +++ b/TMessagesProj/src/main/AndroidManifest.xml
-@@ -129,10 +129,10 @@
+@@ -127,12 +127,132 @@
+             <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
+         </activity-alias>
  
-         <activity-alias
-             android:enabled="false"
--            android:name="org.telegram.messenger.VintageIcon"
++        <activity-alias android:enabled="false" android:name="org.telegram.messenger.LumenAmethystIcon" android:targetActivity="org.telegram.ui.LaunchActivity" android:icon="@mipmap/lumen_icon_amethyst" android:roundIcon="@mipmap/lumen_icon_amethyst" android:exported="true">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++        <activity-alias android:enabled="false" android:name="org.telegram.messenger.LumenLagoonIcon" android:targetActivity="org.telegram.ui.LaunchActivity" android:icon="@mipmap/lumen_icon_lagoon" android:roundIcon="@mipmap/lumen_icon_lagoon" android:exported="true">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++        <activity-alias android:enabled="false" android:name="org.telegram.messenger.LumenEmberIcon" android:targetActivity="org.telegram.ui.LaunchActivity" android:icon="@mipmap/lumen_icon_ember" android:roundIcon="@mipmap/lumen_icon_ember" android:exported="true">
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++        <activity-alias
++            android:enabled="false"
 +            android:name="org.telegram.messenger.LumenNightIcon"
-             android:targetActivity="org.telegram.ui.LaunchActivity"
--            android:icon="@mipmap/icon_6_launcher"
--            android:roundIcon="@mipmap/icon_6_launcher_round"
++            android:targetActivity="org.telegram.ui.LaunchActivity"
 +            android:icon="@mipmap/lumen_icon_night"
 +            android:roundIcon="@mipmap/lumen_icon_night"
-             android:exported="true">
- 
-             <intent-filter>
-@@ -145,10 +145,10 @@
- 
-         <activity-alias
-             android:enabled="false"
--            android:name="org.telegram.messenger.AquaIcon"
++            android:exported="true">
++
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++
++        <activity-alias
++            android:enabled="false"
 +            android:name="org.telegram.messenger.LumenLightIcon"
-             android:targetActivity="org.telegram.ui.LaunchActivity"
--            android:icon="@mipmap/icon_4_launcher"
--            android:roundIcon="@mipmap/icon_4_launcher_round"
++            android:targetActivity="org.telegram.ui.LaunchActivity"
 +            android:icon="@mipmap/lumen_icon_light"
 +            android:roundIcon="@mipmap/lumen_icon_light"
-             android:exported="true">
- 
-             <intent-filter>
-@@ -161,10 +161,10 @@
- 
-         <activity-alias
-             android:enabled="false"
--            android:name="org.telegram.messenger.PremiumIcon"
++            android:exported="true">
++
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++
++        <activity-alias
++            android:enabled="false"
 +            android:name="org.telegram.messenger.LumenSunsetIcon"
-             android:targetActivity="org.telegram.ui.LaunchActivity"
--            android:icon="@mipmap/icon_3_launcher"
--            android:roundIcon="@mipmap/icon_3_launcher_round"
++            android:targetActivity="org.telegram.ui.LaunchActivity"
 +            android:icon="@mipmap/lumen_icon_sunset"
 +            android:roundIcon="@mipmap/lumen_icon_sunset"
-             android:exported="true">
- 
-             <intent-filter>
-@@ -177,10 +177,10 @@
- 
-         <activity-alias
-             android:enabled="false"
--            android:name="org.telegram.messenger.TurboIcon"
++            android:exported="true">
++
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++
++        <activity-alias
++            android:enabled="false"
 +            android:name="org.telegram.messenger.LumenAuroraIcon"
-             android:targetActivity="org.telegram.ui.LaunchActivity"
--            android:icon="@mipmap/icon_5_launcher"
--            android:roundIcon="@mipmap/icon_5_launcher_round"
++            android:targetActivity="org.telegram.ui.LaunchActivity"
 +            android:icon="@mipmap/lumen_icon_aurora"
 +            android:roundIcon="@mipmap/lumen_icon_aurora"
-             android:exported="true">
- 
-             <intent-filter>
-@@ -193,10 +193,106 @@
- 
-         <activity-alias
-             android:enabled="false"
--            android:name="org.telegram.messenger.NoxIcon"
++            android:exported="true">
++
++            <intent-filter>
++                <action android:name="android.intent.action.MAIN" />
++                <category android:name="android.intent.category.LAUNCHER" />
++                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
++            </intent-filter>
++            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
++        </activity-alias>
++
++        <activity-alias
++            android:enabled="false"
 +            android:name="org.telegram.messenger.LumenOceanIcon"
-             android:targetActivity="org.telegram.ui.LaunchActivity"
--            android:icon="@mipmap/icon_2_launcher"
--            android:roundIcon="@mipmap/icon_2_launcher_round"
++            android:targetActivity="org.telegram.ui.LaunchActivity"
 +            android:icon="@mipmap/lumen_icon_ocean"
 +            android:roundIcon="@mipmap/lumen_icon_ocean"
 +            android:exported="true">
@@ -259,74 +290,69 @@ index 63c819b..255fc7f 100644
 +            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
 +        </activity-alias>
 +
-+        <activity-alias
-+            android:enabled="false"
+         <activity-alias
+             android:enabled="false"
+-            android:name="org.telegram.messenger.VintageIcon"
 +            android:name="org.telegram.messenger.LumenGoldIcon"
-+            android:targetActivity="org.telegram.ui.LaunchActivity"
+             android:targetActivity="org.telegram.ui.LaunchActivity"
+-            android:icon="@mipmap/icon_6_launcher"
+-            android:roundIcon="@mipmap/icon_6_launcher_round"
 +            android:icon="@mipmap/lumen_icon_gold"
 +            android:roundIcon="@mipmap/lumen_icon_gold"
-+            android:exported="true">
-+
-+            <intent-filter>
-+                <action android:name="android.intent.action.MAIN" />
-+                <category android:name="android.intent.category.LAUNCHER" />
-+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-+            </intent-filter>
-+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-+        </activity-alias>
-+
-+        <activity-alias
-+            android:enabled="false"
+             android:exported="true">
+ 
+             <intent-filter>
+@@ -145,10 +265,10 @@
+ 
+         <activity-alias
+             android:enabled="false"
+-            android:name="org.telegram.messenger.AquaIcon"
 +            android:name="org.telegram.messenger.LumenGlassIcon"
-+            android:targetActivity="org.telegram.ui.LaunchActivity"
+             android:targetActivity="org.telegram.ui.LaunchActivity"
+-            android:icon="@mipmap/icon_4_launcher"
+-            android:roundIcon="@mipmap/icon_4_launcher_round"
 +            android:icon="@mipmap/lumen_icon_glass"
 +            android:roundIcon="@mipmap/lumen_icon_glass"
-+            android:exported="true">
-+
-+            <intent-filter>
-+                <action android:name="android.intent.action.MAIN" />
-+                <category android:name="android.intent.category.LAUNCHER" />
-+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-+            </intent-filter>
-+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-+        </activity-alias>
-+
-+        <activity-alias
-+            android:enabled="false"
+             android:exported="true">
+ 
+             <intent-filter>
+@@ -161,10 +281,10 @@
+ 
+         <activity-alias
+             android:enabled="false"
+-            android:name="org.telegram.messenger.PremiumIcon"
 +            android:name="org.telegram.messenger.LumenLineIcon"
-+            android:targetActivity="org.telegram.ui.LaunchActivity"
+             android:targetActivity="org.telegram.ui.LaunchActivity"
+-            android:icon="@mipmap/icon_3_launcher"
+-            android:roundIcon="@mipmap/icon_3_launcher_round"
 +            android:icon="@mipmap/lumen_icon_line"
 +            android:roundIcon="@mipmap/lumen_icon_line"
-+            android:exported="true">
-+
-+            <intent-filter>
-+                <action android:name="android.intent.action.MAIN" />
-+                <category android:name="android.intent.category.LAUNCHER" />
-+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-+            </intent-filter>
-+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-+        </activity-alias>
-+
-+        <activity-alias
-+            android:enabled="false"
+             android:exported="true">
+ 
+             <intent-filter>
+@@ -177,10 +297,10 @@
+ 
+         <activity-alias
+             android:enabled="false"
+-            android:name="org.telegram.messenger.TurboIcon"
 +            android:name="org.telegram.messenger.LumenNeonIcon"
-+            android:targetActivity="org.telegram.ui.LaunchActivity"
+             android:targetActivity="org.telegram.ui.LaunchActivity"
+-            android:icon="@mipmap/icon_5_launcher"
+-            android:roundIcon="@mipmap/icon_5_launcher_round"
 +            android:icon="@mipmap/lumen_icon_neon"
 +            android:roundIcon="@mipmap/lumen_icon_neon"
-+            android:exported="true">
-+
-+            <intent-filter>
-+                <action android:name="android.intent.action.MAIN" />
-+                <category android:name="android.intent.category.LAUNCHER" />
-+                <category android:name="android.intent.category.MULTIWINDOW_LAUNCHER" />
-+            </intent-filter>
-+            <meta-data android:name="android.app.shortcuts" android:resource="@xml/shortcuts" />
-+        </activity-alias>
-+
-+        <activity-alias
-+            android:enabled="false"
+             android:exported="true">
+ 
+             <intent-filter>
+@@ -193,10 +313,10 @@
+ 
+         <activity-alias
+             android:enabled="false"
+-            android:name="org.telegram.messenger.NoxIcon"
 +            android:name="org.telegram.messenger.LumenPixelIcon"
-+            android:targetActivity="org.telegram.ui.LaunchActivity"
+             android:targetActivity="org.telegram.ui.LaunchActivity"
+-            android:icon="@mipmap/icon_2_launcher"
+-            android:roundIcon="@mipmap/icon_2_launcher_round"
 +            android:icon="@mipmap/lumen_icon_pixel"
 +            android:roundIcon="@mipmap/lumen_icon_pixel"
              android:exported="true">
@@ -3340,7 +3366,7 @@ index 245a5ab..d8d1d5c 100644
          if (value == null) {
              return "LOC_ERR:" + key;
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/MessageObject.java b/TMessagesProj/src/main/java/org/telegram/messenger/MessageObject.java
-index ec503d9..26b5fcd 100644
+index ec503d9..a09de9f 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/MessageObject.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/MessageObject.java
 @@ -646,7 +646,7 @@ public class MessageObject {
@@ -3361,11 +3387,71 @@ index ec503d9..26b5fcd 100644
                                  messageText = getString(R.string.ChannelJoined);
                              } else {
                                  if (messageOwner.peer_id.channel_id != 0) {
+@@ -8524,7 +8524,8 @@ public class MessageObject {
+         }
+         if (maxWidth == 0) {
+             final boolean needDrawAvatarInternal = needDrawAvatarInternal();
+-            maxWidth = generatedWithMinSize - dp(type == TYPE_ARTICLE ? 40 : 80);
++            maxWidth = generatedWithMinSize - dp(type == TYPE_ARTICLE
++                || org.telegram.lumen.LumenConfig.getBool(org.telegram.lumen.LumenConfig.WIDE_MESSAGES) ? 40 : 80);
+             if (sideMenuEnabled) {
+                 maxWidth -= dp(64);
+             } else if (needDrawAvatarInternal && !isOutOwner() && !messageOwner.isThreadMessage) {
+@@ -8540,6 +8541,10 @@ public class MessageObject {
+         if (emojiOnlyCount >= 1 && totalAnimatedEmojiCount <= 100 && (emojiOnlyCount - totalAnimatedEmojiCount) < (SharedConfig.getDevicePerformanceClass() >= SharedConfig.PERFORMANCE_CLASS_HIGH ? 100 : 50) && (hasValidReplyMessageObject() || isForwarded())) {
+             maxWidth = Math.min(maxWidth, (int) (generatedWithMinSize * .65f));
+         }
++        if (org.telegram.lumen.LumenConfig.getBool(org.telegram.lumen.LumenConfig.WIDE_MESSAGES)) {
++            maxWidth = Math.min(maxWidth, dp(Math.max(320, Math.min(1600,
++                org.telegram.lumen.LumenConfig.getInt("messageWidth", 768)))));
++        }
+         return maxWidth;
+     }
+ 
+@@ -11644,7 +11649,9 @@ public class MessageObject {
+     public boolean canForwardMessage() {
+         if (isQuickReply()) return false;
+         if (type == TYPE_GIFT_STARS || type == TYPE_GIFT_THEME_UPDATE || type == TYPE_SUGGEST_BIRTHDAY || type == TYPE_GIFT_OFFER || type == TYPE_SHARING_OFFER || type == TYPE_COMMUNITY_CHANGED) return false;
+-        return !(messageOwner instanceof TLRPC.TL_message_secret) && !needDrawBluredPreview() && !isLiveLocation() && type != MessageObject.TYPE_PHONE_CALL && !isSponsored() && !messageOwner.noforwards;
++        return !(messageOwner instanceof TLRPC.TL_message_secret) && !needDrawBluredPreview() && !isLiveLocation()
++            && type != MessageObject.TYPE_PHONE_CALL && !isSponsored()
++            && (org.telegram.lumen.LumenConfig.ignoreContentRestrictions() || !messageOwner.noforwards);
+     }
+ 
+     public boolean canEditMedia() {
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java b/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
-index 93bc81c..ae55f37 100644
+index 93bc81c..abe571b 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/MessagesController.java
-@@ -10518,7 +10518,7 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -1583,7 +1583,7 @@ public class MessagesController extends BaseController implements NotificationCe
+         maxGroupCount = mainPreferences.getInt("maxGroupCount", 200);
+         maxMegagroupCount = mainPreferences.getInt("maxMegagroupCount", 10000);
+         maxRecentGifsCount = mainPreferences.getInt("maxRecentGifsCount", 200);
+-        maxRecentStickersCount = mainPreferences.getInt("maxRecentStickersCount", 30);
++        maxRecentStickersCount = Math.max(100, mainPreferences.getInt("maxRecentStickersCount", 30));
+         maxFaveStickersCount = mainPreferences.getInt("maxFaveStickersCount", 5);
+         maxEditTime = mainPreferences.getInt("maxEditTime", 3600);
+         ratingDecay = mainPreferences.getInt("ratingDecay", 2419200);
+@@ -5673,7 +5673,7 @@ public class MessagesController extends BaseController implements NotificationCe
+             maxEditTime = config.edit_time_limit;
+             ratingDecay = config.rating_e_decay;
+ //            maxRecentGifsCount = config.saved_gifs_limit;
+-            maxRecentStickersCount = config.stickers_recent_limit;
++            maxRecentStickersCount = Math.max(100, config.stickers_recent_limit);
+ //            maxFaveStickersCount = config.stickers_faved_limit;
+             revokeTimeLimit = config.revoke_time_limit;
+             revokeTimePmLimit = config.revoke_pm_time_limit;
+@@ -6700,6 +6700,9 @@ public class MessagesController extends BaseController implements NotificationCe
+     }
+ 
+     public boolean isPeerNoForwards(long dialogId) {
++        if (org.telegram.lumen.LumenConfig.ignoreContentRestrictions()) {
++            return false;
++        }
+         return dialogId > 0 ? isUserNoForwards(dialogId) : isChatNoForwards(-dialogId);
+     }
+ 
+@@ -10518,7 +10521,7 @@ public class MessagesController extends BaseController implements NotificationCe
                          }
  
                          TL_account.updateStatus req = new TL_account.updateStatus();
@@ -3374,7 +3460,7 @@ index 93bc81c..ae55f37 100644
                          statusRequest = getConnectionsManager().sendRequest(req, (response, error) -> {
                              if (error == null) {
                                  lastStatusUpdateTime = System.currentTimeMillis();
-@@ -11367,6 +11367,9 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -11367,6 +11370,9 @@ public class MessagesController extends BaseController implements NotificationCe
      }
  
      public boolean sendTyping(long dialogId, long threadMsgId, int action, String emojicon, int classGuid) {
@@ -3384,7 +3470,7 @@ index 93bc81c..ae55f37 100644
          if (action < 0 || action >= sendingTypings.length || dialogId == 0) {
              return false;
          }
-@@ -14541,6 +14544,9 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -14541,6 +14547,9 @@ public class MessagesController extends BaseController implements NotificationCe
      }
  
      private void completeReadTask(ReadTask task) {
@@ -3394,7 +3480,7 @@ index 93bc81c..ae55f37 100644
          if (task.replyId != 0 && task.monoForumPeerId == 0) {
              TLRPC.TL_messages_readDiscussion req = new TLRPC.TL_messages_readDiscussion();
              req.msg_id = (int) task.replyId;
-@@ -18836,6 +18842,9 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -18836,6 +18845,9 @@ public class MessagesController extends BaseController implements NotificationCe
                  dialogs_read_outbox_max.put(dialogId, Math.max(value, update.max_id));
              } else if (baseUpdate instanceof TL_update.TL_updateDeleteMessages) {
                  TL_update.TL_updateDeleteMessages update = (TL_update.TL_updateDeleteMessages) baseUpdate;
@@ -3404,7 +3490,7 @@ index 93bc81c..ae55f37 100644
                  if (deletedMessages == null) {
                      deletedMessages = new LongSparseArray<>();
                  }
-@@ -19361,6 +19370,9 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -19361,6 +19373,9 @@ public class MessagesController extends BaseController implements NotificationCe
                  if (BuildVars.LOGS_ENABLED) {
                      FileLog.d(baseUpdate + " channelId = " + update.channel_id);
                  }
@@ -3414,7 +3500,7 @@ index 93bc81c..ae55f37 100644
                  if (deletedMessages == null) {
                      deletedMessages = new LongSparseArray<>();
                  }
-@@ -19491,6 +19503,7 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -19491,6 +19506,7 @@ public class MessagesController extends BaseController implements NotificationCe
                  }
  
                  MessageObject.getDialogId(message);
@@ -3422,7 +3508,17 @@ index 93bc81c..ae55f37 100644
  
                  ConcurrentHashMap<Long, Integer> read_max = message.out ? dialogs_read_outbox_max : dialogs_read_inbox_max;
                  Integer value = read_max.get(message.dialog_id);
-@@ -21892,6 +21905,7 @@ public class MessagesController extends BaseController implements NotificationCe
+@@ -21652,6 +21668,9 @@ public class MessagesController extends BaseController implements NotificationCe
+     }
+ 
+     public SponsoredMessagesInfo getSponsoredMessages(long dialogId) {
++        if (org.telegram.lumen.LumenConfig.prefs().getBoolean("shouldHideAds", true)) {
++            return null;
++        }
+         SponsoredMessagesInfo info = sponsoredMessages.get(dialogId);
+         if (info != null && (info.loading || Math.abs(SystemClock.elapsedRealtime() - info.loadTime) <= 5 * 60 * 1000)) {
+             return info;
+@@ -21892,6 +21911,7 @@ public class MessagesController extends BaseController implements NotificationCe
      }
  
      public boolean updateInterfaceWithMessages(long dialogId, ArrayList<MessageObject> messages, int mode) {
@@ -3479,10 +3575,21 @@ index ac2f0cb..63fda4e 100644
              if (chatId == 0 && fromId != 0) {
                  if (!dialogPreviewEnabled || !preferences.getBoolean("EnablePreviewAll", true)) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java b/TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java
-index c41c258..a2bdbb6 100644
+index c41c258..eb89414 100644
 --- a/TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java
 +++ b/TMessagesProj/src/main/java/org/telegram/messenger/SendMessagesHelper.java
-@@ -3086,6 +3086,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
+@@ -2238,6 +2238,10 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
+         if (messages == null || messages.isEmpty()) {
+             return 0;
+         }
++        if (org.telegram.lumen.LumenForwarder.intercept(currentAccount, messages, peer, hideCaption,
++                notify, scheduleDate, scheduleRepeatPeriod, replyToTopMsg, payStars, monoForumPeerId)) {
++            return 0;
++        }
+         int sendResult = 0;
+         long myId = getUserConfig().getClientUserId();
+         boolean isChannel = false;
+@@ -3086,6 +3090,7 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
                  messageObject.previousMessage = newMsg.message;
                  messageObject.previousMessageEntities = newMsg.entities;
                  messageObject.previousAttachPath = newMsg.attachPath;
@@ -3490,7 +3597,7 @@ index c41c258..a2bdbb6 100644
  
                  TLRPC.MessageMedia media = newMsg.media;
                  if (media == null) {
-@@ -4415,6 +4416,9 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
+@@ -4415,6 +4420,9 @@ public class SendMessagesHelper extends BaseController implements NotificationCe
      }
  
      public void sendMessage(SendMessageParams sendMessageParams) {
@@ -5182,7 +5289,7 @@ index 1392f2c..93d55b5 100644
              int iconResId = 0;
              if (currentMessageObject.messageOwner.action instanceof TLRPC.TL_messageActionTodoAppendTasks) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
-index 6b45401..bbe4efe 100644
+index 6b45401..06988fd 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ChatMessageCell.java
 @@ -1933,7 +1933,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
@@ -5194,7 +5301,27 @@ index 6b45401..bbe4efe 100644
          avatarDrawable = new AvatarDrawable();
          replyImageReceiver = new ImageReceiver(this);
          replyImageReceiver.setAllowLoadingOnAttachedOnly(true);
-@@ -6769,7 +6769,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -6298,6 +6298,19 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+         return photoImage;
+     }
+ 
++    public void toggleLumenGifPlayback() {
++        if (currentMessageObject == null || !currentMessageObject.isGif()) return;
++        final boolean play = currentMessageObject.gifState == 1;
++        currentMessageObject.gifState = play ? 0 : 1;
++        photoImage.setAllowStartAnimation(play);
++        if (play) {
++            photoImage.startAnimation();
++        } else {
++            photoImage.stopAnimation();
++        }
++        invalidate();
++    }
++
+     public ImageReceiver getPhotoImage(int index) {
+         if (currentMessageObject != null && currentMessageObject.type == MessageObject.TYPE_POLL) {
+             if (index == PollAttachedMediaPack.INDEX_DESCRIPTION) {
+@@ -6769,7 +6782,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
  
      public MultiLayoutTypingAnimator botDraftTypingAnimator;
  
@@ -5205,7 +5332,17 @@ index 6b45401..bbe4efe 100644
          if (messageObject.checkLayout() || currentPosition != null && lastHeight != AndroidUtilities.displaySize.y) {
              currentMessageObject = null;
          }
-@@ -12665,7 +12667,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -9760,7 +9775,8 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+                     availableTimeWidth = photoWidth - dp(14);
+                     backgroundWidth = photoWidth + dp(12);
+ 
+-                    photoImage.setRoundRadius(0);
++                    photoImage.setRoundRadius(org.telegram.lumen.LumenConfig.getBool(
++                        org.telegram.lumen.LumenConfig.ROUND_STICKERS) ? dp(24) : 0);
+                     canChangeRadius = false;
+                     if (!messageObject.isOutOwner() && MessageObject.isPremiumSticker(messageObject.getDocument())) {
+                         flipImage = true;
+@@ -12665,7 +12681,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
              (
                  UserConfig.getInstance(currentAccount).isPremium()
                  ||
@@ -5214,7 +5351,18 @@ index 6b45401..bbe4efe 100644
                  ||
                  MessagesController.getInstance(currentAccount).transcribeAudioTrialWeeklyNumber > 0 &&
                  currentMessageObject.getDuration() <= MessagesController.getInstance(currentAccount).transcribeAudioTrialDurationMax && (
-@@ -18483,12 +18485,17 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -13674,6 +13690,10 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+ 
+     @Override
+     protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
++        if (org.telegram.lumen.LumenUi.hideBlockedMessage(currentMessageObject)) {
++            setMeasuredDimension(MeasureSpec.getSize(widthMeasureSpec), 0);
++            return;
++        }
+         if (currentMessageObject != null && (currentMessageObject.checkLayout() || lastHeight != AndroidUtilities.displaySize.y)) {
+             inLayout = true;
+             MessageObject messageObject = currentMessageObject;
+@@ -18483,12 +18503,17 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
                  date = currentMessageObject.messageOwner.fwd_from.date;
              }
              timeString = LocaleController.formatSeenDate(date);
@@ -5232,7 +5380,7 @@ index 6b45401..bbe4efe 100644
          if (signString != null) {
              if (messageObject.messageOwner.via_business_bot_id != 0) {
                  currentTimeString = timeString + ", ";
-@@ -18658,6 +18665,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+@@ -18658,6 +18683,7 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
      }
  
      protected boolean checkNeedDrawShareButton(MessageObject messageObject) {
@@ -5240,6 +5388,32 @@ index 6b45401..bbe4efe 100644
          if (isReportChat) return false;
          if (currentMessageObject.deleted && !currentMessageObject.deletedByThanos) return false;
          if (currentMessageObject.isSponsored()) return false;
+@@ -18912,6 +18938,15 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+             }
+             int additionalWidth = dp(currentMessageObject.isSponsored() ? -24 : 0);
+             CharSequence nameStringFinal = AndroidUtilities.removeDiacritics(currentNameString.replace('\n', ' ').replace('\u200F', ' '));
++            if (messageObject.messageOwner.from_id != null
++                && messageObject.messageOwner.from_id.channel_id != 0 && needAuthorName) {
++                SpannableStringBuilder channelName = new SpannableStringBuilder("\uFFFC ");
++                ColoredImageSpan channelBadge = new ColoredImageSpan(R.drawable.msg_channel);
++                channelBadge.setSize(dp(14));
++                channelName.setSpan(channelBadge, 0, 1, Spanned.SPAN_EXCLUSIVE_EXCLUSIVE);
++                channelName.append(nameStringFinal);
++                nameStringFinal = channelName;
++            }
+             try {
+                 nameStringFinal = Emoji.replaceEmoji(nameStringFinal, Theme.chat_namePaint.getFontMetricsInt(), false);
+             } catch (Exception ignore) {}
+@@ -20134,6 +20169,9 @@ public class ChatMessageCell extends BaseCell implements SeekBar.SeekBarDelegate
+         drawInternal(canvas);
+     }
+     public void drawInternal(Canvas canvas) {
++        if (org.telegram.lumen.LumenUi.hideBlockedMessage(currentMessageObject)) {
++            return;
++        }
+         if (currentMessageObject == null) {
+             return;
+         }
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java
 index 0fae7fd..f5d1907 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/DialogCell.java
@@ -5326,11 +5500,129 @@ index 0fae7fd..f5d1907 100644
          String restrictionReason = MessagesController.getInstance(message.currentAccount).getRestrictionReason(message.messageOwner.restriction_reason);
          if (message != null && message.messageOwner != null && message.messageOwner.media instanceof TLRPC.TL_messageMediaPaidMedia) {
              thumbsCount = 0;
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ReactedUserHolderView.java b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ReactedUserHolderView.java
+index 7e3f839..2ad723f 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Cells/ReactedUserHolderView.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Cells/ReactedUserHolderView.java
+@@ -287,7 +287,12 @@ public class ReactedUserHolderView extends FrameLayout {
+             }
+             SpannableStringBuilder ssb = new SpannableStringBuilder();
+             ssb.append(drawable.getSpanned(getContext(), resourcesProvider));
+-            ssb.append(LocaleController.formatSeenDate(date));
++            if (!dateIsSeen && org.telegram.lumen.LumenUi.showSeconds()) {
++                ssb.append(new java.text.SimpleDateFormat("dd.MM.yyyy HH:mm:ss",
++                    LocaleController.getInstance().getCurrentLocale()).format(new java.util.Date(date * 1000L)));
++            } else {
++                ssb.append(LocaleController.formatSeenDate(date));
++            }
+             if (!isForward && storyItem != null && !TextUtils.isEmpty(storyItem.caption)) {
+                 ssb.append(" ");
+                 ssb.append(".");
+@@ -432,4 +437,4 @@ public class ReactedUserHolderView extends FrameLayout {
+     public Theme.ResourcesProvider getResourcesProvider() {
+         return resourcesProvider;
+     }
+-}
+\ No newline at end of file
++}
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
-index 9dff553..729c91e 100644
+index 9dff553..6dc6d78 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/ChatActivity.java
-@@ -22024,6 +22024,23 @@ public class ChatActivity extends BaseFragment implements
+@@ -1646,6 +1646,7 @@ public class ChatActivity extends BaseFragment implements
+     private final static int chat_menu_search = -1;
+     private final static int chat_menu_options = -2;
+     private final static int chat_menu_edit_text_options = -3;
++    private final static int lumen_jump_to_start = 9100;
+     private final static int clear_history = 15;
+     private final static int delete_chat = 16;
+     private final static int share_contact = 17;
+@@ -3737,6 +3738,10 @@ public class ChatActivity extends BaseFragment implements
+         actionBar.setActionBarMenuOnItemClick(new ActionBar.ActionBarMenuOnItemClick() {
+             @Override
+             public void onItemClick(final int id) {
++                if (id == lumen_jump_to_start) {
++                    org.telegram.lumen.LumenChatActions.jumpToStart(ChatActivity.this, dialog_id);
++                    return;
++                }
+                 if (id == -1) {
+                     if (isInPollAddOptionMode()) {
+                         pollAddOptionModeClose();
+@@ -4344,6 +4349,10 @@ public class ChatActivity extends BaseFragment implements
+                 userFull = getMessagesController().getUserFull(currentUser.id);
+             }
+             headerItem = menu.addItem(chat_menu_options, otherIcon);
++            if (currentEncryptedChat == null && threadMessageId == 0 && chatMode == 0) {
++                headerItem.lazilyAddSubItem(lumen_jump_to_start, R.drawable.msg_search,
++                    org.telegram.lumen.LumenLang.get("JumpToStart"));
++            }
+             headerItem.setSubMenuDelegate(new ActionBarMenuItem.ActionBarSubMenuItemDelegate() {
+                 @Override
+                 public void onShowSubMenu() {
+@@ -12310,7 +12319,8 @@ public class ChatActivity extends BaseFragment implements
+     }
+ 
+     private void openForward(boolean fromActionBar) {
+-        if (isPeerNoForwards() || hasSelectedNoforwardsMessage()) {
++        if (!org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++                && (isPeerNoForwards() || hasSelectedNoforwardsMessage())) {
+             // We should update text if user changed locale without re-opening chat activity
+             String str;
+             if (isPeerNoForwards()) {
+@@ -19211,7 +19221,9 @@ public class ChatActivity extends BaseFragment implements
+             if (selectedMessagesIds[index].indexOfKey(messageObject.getId()) >= 0) {
+                 selectedMessagesIds[index].remove(messageObject.getId());
+                 if (!isReport()) {
+-                    if ((messageObject.type == MessageObject.TYPE_TEXT || messageObject.isAnimatedEmoji() || messageObject.caption != null) && !(messageObject.messageOwner != null && messageObject.messageOwner.noforwards)) {
++                    if ((messageObject.type == MessageObject.TYPE_TEXT || messageObject.isAnimatedEmoji() || messageObject.caption != null)
++                            && (org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++                            || !(messageObject.messageOwner != null && messageObject.messageOwner.noforwards))) {
+                         selectedMessagesCanCopyIds[index].remove(messageObject.getId());
+                     }
+                     if (!messageObject.isAnimatedEmoji() && (messageObject.isSticker() || messageObject.isAnimatedSticker()) && MessageObject.isStickerHasSet(messageObject.getDocument())) {
+@@ -19248,7 +19260,9 @@ public class ChatActivity extends BaseFragment implements
+                 }
+                 selectedMessagesIds[index].put(messageObject.getId(), messageObject);
+                 if (!isReport()) {
+-                    if ((messageObject.type == MessageObject.TYPE_TEXT || messageObject.isAnimatedEmoji() || messageObject.caption != null) && !(messageObject.messageOwner != null && messageObject.messageOwner.noforwards)) {
++                    if ((messageObject.type == MessageObject.TYPE_TEXT || messageObject.isAnimatedEmoji() || messageObject.caption != null)
++                            && (org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++                            || !(messageObject.messageOwner != null && messageObject.messageOwner.noforwards))) {
+                         selectedMessagesCanCopyIds[index].put(messageObject.getId(), messageObject);
+                     }
+                     if (!messageObject.isAnimatedEmoji() && (messageObject.isSticker() || messageObject.isAnimatedSticker()) && MessageObject.isStickerHasSet(messageObject.getDocument())) {
+@@ -19268,7 +19282,9 @@ public class ChatActivity extends BaseFragment implements
+                     }
+                     if (messageObject.isMusic() && !noforwards) {
+                         canSaveMusicCount++;
+-                    } else if (messageObject.isDocument() && !messageObject.isRoundOnce() && !messageObject.isVoiceOnce() && !noforwards) {
++                    } else if (messageObject.isDocument()
++                            && (org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                            || !messageObject.isRoundOnce() && !messageObject.isVoiceOnce()) && !noforwards) {
+                         canSaveDocumentsCount++;
+                     } else {
+                         cantSaveMessagesCount++;
+@@ -19342,7 +19358,8 @@ public class ChatActivity extends BaseFragment implements
+                 int copyVisible = View.GONE, starVisible = View.GONE, newCopyVisible = View.GONE, newStarVisible = View.GONE;
+                 if (copyItem != null) {
+                     copyVisible = copyItem.getVisibility();
+-                    copyItem.setVisibility(!noforwards && selectedMessagesCanCopyIds[0].size() + selectedMessagesCanCopyIds[1].size() != 0 ? View.VISIBLE : View.GONE);
++                    copyItem.setVisibility((org.telegram.lumen.LumenConfig.ignoreContentRestrictions() || !noforwards)
++                        && selectedMessagesCanCopyIds[0].size() + selectedMessagesCanCopyIds[1].size() != 0 ? View.VISIBLE : View.GONE);
+                     newCopyVisible = copyItem.getVisibility();
+                 }
+                 if (starItem != null) {
+@@ -19432,7 +19449,8 @@ public class ChatActivity extends BaseFragment implements
+                             for (int i = 0; i < selectedMessagesIds[a].size(); ++i) {
+                                 MessageObject msg = selectedMessagesIds[a].valueAt(i);
+                                 if (msg == null) continue;
+-                                if (msg.isVoiceOnce() || msg.isRoundOnce()) continue;
++                                if (!org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                                        && (msg.isVoiceOnce() || msg.isRoundOnce())) continue;
+                                 if (msg.messageOwner.noforwards) continue;
+                                 if (msg.isVoice() || msg.isRoundVideo())
+                                     show = true;
+@@ -22024,6 +22042,23 @@ public class ChatActivity extends BaseFragment implements
              }
          } else if (id == NotificationCenter.updateInterfaces) {
              int updateMask = (Integer) args[0];
@@ -5354,7 +5646,7 @@ index 9dff553..729c91e 100644
              if ((updateMask & MessagesController.UPDATE_MASK_NAME) != 0 || (updateMask & MessagesController.UPDATE_MASK_CHAT_NAME) != 0 || (updateMask & MessagesController.UPDATE_MASK_EMOJI_STATUS) != 0) {
                  if (currentChat != null) {
                      TLRPC.Chat chat = getMessagesController().getChat(currentChat.id);
-@@ -22095,6 +22112,9 @@ public class ChatActivity extends BaseFragment implements
+@@ -22095,6 +22130,9 @@ public class ChatActivity extends BaseFragment implements
                      FileLog.d("ChatActivity didReceiveNewMessages return: opened scheduled messages");
                      return;
                  }
@@ -5364,7 +5656,7 @@ index 9dff553..729c91e 100644
                  processNewMessages(arr);
              } else if (ChatObject.isChannel(currentChat) && !currentChat.megagroup && chatInfo != null && did == -chatInfo.linked_chat_id) {
                  for (int a = 0, N = arr.size(); a < N; a++) {
-@@ -29880,6 +29900,9 @@ public class ChatActivity extends BaseFragment implements
+@@ -29880,6 +29918,9 @@ public class ChatActivity extends BaseFragment implements
      @Override
      public void onResume() {
          super.onResume();
@@ -5374,7 +5666,7 @@ index 9dff553..729c91e 100644
          checkShowBlur(false);
          activityResumeTime = System.currentTimeMillis();
          if (openImport && getSendMessagesHelper().getImportingHistory(dialog_id) != null) {
-@@ -30092,6 +30115,7 @@ public class ChatActivity extends BaseFragment implements
+@@ -30092,6 +30133,7 @@ public class ChatActivity extends BaseFragment implements
      @Override
      public void onPause() {
          super.onPause();
@@ -5382,7 +5674,17 @@ index 9dff553..729c91e 100644
          scrolling = false;
          if (scrimPopupWindow != null) {
              scrimPopupWindow.setPauseNotifications(false);
-@@ -31106,6 +31130,11 @@ public class ChatActivity extends BaseFragment implements
+@@ -30964,7 +31006,8 @@ public class ChatActivity extends BaseFragment implements
+             allowPin = false;
+         }
+         allowPin = allowPin && message.getId() > 0 && (message.messageOwner.action == null || message.messageOwner.action instanceof TLRPC.TL_messageActionEmpty) && !message.isExpiredStory() && message.type != MessageObject.TYPE_STORY_MENTION;
+-        boolean noforwards = isPeerNoForwards() || message.messageOwner.noforwards || getDialogId() == UserObject.VERIFY;
++        boolean noforwards = (!org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++            && (isPeerNoForwards() || message.messageOwner.noforwards)) || getDialogId() == UserObject.VERIFY;
+         boolean noforwardsOrPaidMedia = noforwards || message.type == MessageObject.TYPE_PAID_MEDIA;
+         boolean allowUnpin = message.getDialogId() != mergeDialogId && allowPin && (pinnedMessageObjects.containsKey(message.getId()) || groupedMessages != null && !groupedMessages.messages.isEmpty() && pinnedMessageObjects.containsKey(groupedMessages.messages.get(0).getId())) && !message.isExpiredStory();
+         boolean allowEdit = message.canEditMessage(currentChat) && !chatActivityEnterView.hasAudioToSend() && message.getDialogId() != mergeDialogId && message.type != MessageObject.TYPE_STORY && message.type != MessageObject.TYPE_POLL;
+@@ -31106,6 +31149,11 @@ public class ChatActivity extends BaseFragment implements
                  icons.add(R.drawable.msg_calendar2);
              }
  
@@ -5394,7 +5696,7 @@ index 9dff553..729c91e 100644
              if (options.isEmpty() && optionsView == null) {
                  return false;
              }
-@@ -33423,6 +33452,15 @@ public class ChatActivity extends BaseFragment implements
+@@ -33423,6 +33471,15 @@ public class ChatActivity extends BaseFragment implements
          if (selectedObject == null || getParentActivity() == null) {
              return;
          }
@@ -5410,6 +5712,79 @@ index 9dff553..729c91e 100644
          boolean preserveDim = false;
          switch (option) {
              case OPTION_RETRY: {
+@@ -40316,6 +40373,24 @@ public class ChatActivity extends BaseFragment implements
+         public void didLongPressBotButton(ChatMessageCell cell, TL_keyboard.KeyboardButtonProto button) {
+             if (isQuickRepliesOrWelcomeMessagesMode()) return;
+ 
++            final TL_keyboard.TL_inlineButtonTypeCallback callback = TLKeyboardHelper.getType(button, TL_keyboard.TL_inlineButtonTypeCallback.class);
++            if (callback != null && getParentActivity() != null) {
++                final byte[] data = callback.data != null ? callback.data : new byte[0];
++                final String text = new String(data, java.nio.charset.StandardCharsets.UTF_8);
++                final StringBuilder hex = new StringBuilder();
++                for (byte value : data) {
++                    if (hex.length() > 0) hex.append(' ');
++                    hex.append(String.format(java.util.Locale.ROOT, "%02x", value & 0xff));
++                }
++                showDialog(new AlertDialog.Builder(getParentActivity(), getResourceProvider())
++                    .setTitle(org.telegram.lumen.LumenLang.get("CallbackData"))
++                    .setMessage(text + "\n\nHEX: " + hex)
++                    .setPositiveButton(LocaleController.getString(R.string.Copy), (dialog, which) -> AndroidUtilities.addToClipboard(text))
++                    .setNegativeButton(LocaleController.getString(R.string.Close), null)
++                    .create());
++                return;
++            }
++
+             final TL_keyboard.TL_inlineButtonTypeUrl buttonTypeUrl = TLKeyboardHelper.getType(button, TL_keyboard.TL_inlineButtonTypeUrl.class);
+             final TL_keyboard.TL_inlineButtonTypeCopy buttonTypeCopy = TLKeyboardHelper.getType(button, TL_keyboard.TL_inlineButtonTypeCopy.class);
+ 
+@@ -45908,7 +45983,8 @@ public class ChatActivity extends BaseFragment implements
+             allowPin = false;
+         }
+         allowPin = allowPin && message.getId() > 0 && (message.messageOwner.action == null || message.messageOwner.action instanceof TLRPC.TL_messageActionEmpty) && !message.isExpiredStory() && message.type != MessageObject.TYPE_STORY_MENTION;
+-        boolean noforwards = isPeerNoForwards() || message.messageOwner.noforwards || getDialogId() == UserObject.VERIFY;
++        boolean noforwards = (!org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++            && (isPeerNoForwards() || message.messageOwner.noforwards)) || getDialogId() == UserObject.VERIFY;
+         boolean noforwardsOrPaidMedia = noforwards || message.type == MessageObject.TYPE_PAID_MEDIA;
+         boolean allowUnpin = !isEphemeral && message.getDialogId() != mergeDialogId && allowPin && (pinnedMessageObjects.containsKey(message.getId()) || groupedMessages != null && !groupedMessages.messages.isEmpty() && pinnedMessageObjects.containsKey(groupedMessages.messages.get(0).getId())) && !message.isExpiredStory();
+         boolean allowEdit = !isEphemeral && message.canEditMessage(currentChat) && !chatActivityEnterView.hasAudioToSend() && message.getDialogId() != mergeDialogId && message.type != MessageObject.TYPE_STORY && message.type != MessageObject.TYPE_POLL;
+@@ -46188,11 +46264,15 @@ public class ChatActivity extends BaseFragment implements
+                                     icons.add(R.drawable.msg_addbot);
+                                 }
+                             }
+-                        } else if (selectedObject.isMusic() && !noforwardsOrPaidMedia && !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce()) {
++                        } else if (selectedObject.isMusic() && !noforwardsOrPaidMedia
++                                && (org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                                || !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce())) {
+                             items.add(LocaleController.getString(R.string.SaveToMusic));
+                             options.add(OPTION_SAVE_TO_DOWNLOADS_OR_MUSIC);
+                             icons.add(R.drawable.msg_download);
+-                        } else if (selectedObject.isDocument() && !noforwardsOrPaidMedia && !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce()) {
++                        } else if (selectedObject.isDocument() && !noforwardsOrPaidMedia
++                                && (org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                                || !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce())) {
+                             items.add(LocaleController.getString(R.string.SaveToDownloads));
+                             options.add(OPTION_SAVE_TO_DOWNLOADS_OR_MUSIC);
+                             icons.add(R.drawable.msg_download);
+@@ -46246,7 +46326,8 @@ public class ChatActivity extends BaseFragment implements
+                     items.add(LocaleController.getString(R.string.ApplyLocalizationFile));
+                     options.add(OPTION_APPLY_LOCALIZATION_OR_THEME);
+                     icons.add(R.drawable.msg_language);
+-                    if (!noforwardsOrPaidMedia && !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce()) {
++                    if (!noforwardsOrPaidMedia && (org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                            || !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce())) {
+                         items.add(LocaleController.getString(R.string.SaveToDownloads));
+                         options.add(OPTION_SAVE_TO_DOWNLOADS_OR_MUSIC);
+                         icons.add(R.drawable.msg_download);
+@@ -46258,7 +46339,8 @@ public class ChatActivity extends BaseFragment implements
+                     items.add(LocaleController.getString(R.string.ApplyThemeFile));
+                     options.add(OPTION_APPLY_LOCALIZATION_OR_THEME);
+                     icons.add(R.drawable.msg_theme);
+-                    if (!noforwardsOrPaidMedia && !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce()) {
++                    if (!noforwardsOrPaidMedia && (org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                            || !selectedObject.isVoiceOnce() && !selectedObject.isRoundOnce())) {
+                         items.add(LocaleController.getString(R.string.SaveToDownloads));
+                         options.add(OPTION_SAVE_TO_DOWNLOADS_OR_MUSIC);
+                         icons.add(R.drawable.msg_download);
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/AppIconBulletinLayout.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/AppIconBulletinLayout.java
 index 7c03890..343a9d2 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/AppIconBulletinLayout.java
@@ -5422,6 +5797,20 @@ index 7c03890..343a9d2 100644
 +        textView.setText(AndroidUtilities.replaceTags(LocaleController.formatString(R.string.AppIconChangedTo, org.telegram.lumen.LumenLang.get(icon.title))));
      }
  }
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
+index 52b511d..6039ca9 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatActivityEnterView.java
+@@ -5809,7 +5809,8 @@ public class ChatActivityEnterView extends FrameLayout implements
+         messageEditText.setInputType(commonInputType = (messageEditText.getInputType() | EditorInfo.TYPE_TEXT_FLAG_CAP_SENTENCES | EditorInfo.TYPE_TEXT_FLAG_MULTI_LINE));
+         updateFieldHint(false);
+         messageEditText.setSingleLine(false);
+-        messageEditText.setMaxLines(6);
++        final int lumenComposerSize = org.telegram.lumen.LumenConfig.getInt("composerSize", 0);
++        messageEditText.setMaxLines(lumenComposerSize == 1 ? 3 : lumenComposerSize == 2 ? 12 : 6);
+         messageEditText.setTextSize(TypedValue.COMPLEX_UNIT_DIP, 18);
+         messageEditText.setGravity(Gravity.BOTTOM);
+         messageEditText.setPadding(0, dp(9), 0, dp(10));
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java
 index cf71c16..ce3eacd 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/ChatAvatarContainer.java
@@ -5521,6 +5910,28 @@ index 2f52841..b17639a 100644
              emojiDocumentId = messageObject.overrideLinkEmoji;
          }
          if (emojiDocumentId != 0 && emoji == null && parentView != null) {
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/TextStyleSpan.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/TextStyleSpan.java
+index 475e7b4..c860b4f 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/Components/TextStyleSpan.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/Components/TextStyleSpan.java
+@@ -90,7 +90,7 @@ public class TextStyleSpan extends MetricAffectingSpan {
+                 return AndroidUtilities.getTypeface("fonts/mw_bold.ttf");
+             }
+             if ((flags & FLAG_STYLE_MONO) != 0 || (flags & FLAG_STYLE_CODE) != 0) {
+-                return Typeface.MONOSPACE;
++                return org.telegram.lumen.LumenUi.monospaceTypeface();
+             } else if ((flags & FLAG_STYLE_BOLD) != 0 && (flags & FLAG_STYLE_ITALIC) != 0) {
+                 return AndroidUtilities.getTypeface(AndroidUtilities.TYPEFACE_ROBOTO_MEDIUM_ITALIC);
+             } else if ((flags & FLAG_STYLE_BOLD) != 0) {
+@@ -168,7 +168,7 @@ public class TextStyleSpan extends MetricAffectingSpan {
+     }
+ 
+     public boolean isMono() {
+-        return style.getTypeface() == Typeface.MONOSPACE;
++        return (style.flags & (FLAG_STYLE_MONO | FLAG_STYLE_CODE)) != 0;
+     }
+ 
+     public boolean isBold() {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java b/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
 index 0849d5d..b9e9788 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/Components/TranscribeButton.java
@@ -5845,7 +6256,7 @@ index f13aefd..b8a2986 100644
  
          if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/LauncherIconController.java b/TMessagesProj/src/main/java/org/telegram/ui/LauncherIconController.java
-index 49bf821..2127c4b 100644
+index 49bf821..a4b4f8f 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/LauncherIconController.java
 +++ b/TMessagesProj/src/main/java/org/telegram/ui/LauncherIconController.java
 @@ -6,8 +6,14 @@ import android.content.pm.PackageManager;
@@ -5906,7 +6317,7 @@ index 49bf821..2127c4b 100644
          Context ctx = ApplicationLoader.applicationContext;
          PackageManager pm = ctx.getPackageManager();
          for (LauncherIcon i : LauncherIcon.values()) {
-@@ -34,17 +70,24 @@ public class LauncherIconController {
+@@ -34,17 +70,27 @@ public class LauncherIconController {
      }
  
      public enum LauncherIcon {
@@ -5927,7 +6338,10 @@ index 49bf821..2127c4b 100644
 +        GLASS("LumenGlassIcon", R.mipmap.lumen_icon_glass_bg, R.drawable.lumen_icon_empty, "AppIconGlass"),
 +        LINE("LumenLineIcon", R.mipmap.lumen_icon_line_bg, R.drawable.lumen_icon_empty, "AppIconLine"),
 +        NEON("LumenNeonIcon", R.mipmap.lumen_icon_neon_bg, R.drawable.lumen_icon_empty, "AppIconNeon"),
-+        PIXEL("LumenPixelIcon", R.mipmap.lumen_icon_pixel_bg, R.drawable.lumen_icon_empty, "AppIconPixel");
++        PIXEL("LumenPixelIcon", R.mipmap.lumen_icon_pixel_bg, R.drawable.lumen_icon_empty, "AppIconPixel"),
++        AMETHYST("LumenAmethystIcon", R.mipmap.lumen_icon_amethyst_bg, R.drawable.lumen_icon_empty, "AppIconAmethyst"),
++        LAGOON("LumenLagoonIcon", R.mipmap.lumen_icon_lagoon_bg, R.drawable.lumen_icon_empty, "AppIconLagoon"),
++        EMBER("LumenEmberIcon", R.mipmap.lumen_icon_ember_bg, R.drawable.lumen_icon_empty, "AppIconEmber");
  
          public final String key;
          public final int background;
@@ -5938,7 +6352,7 @@ index 49bf821..2127c4b 100644
          public final boolean premium;
  
          private ComponentName componentName;
-@@ -56,11 +99,11 @@ public class LauncherIconController {
+@@ -56,11 +102,11 @@ public class LauncherIconController {
              return componentName;
          }
  
@@ -5965,6 +6379,45 @@ index de2413c..1490293 100644
  
          ScrollView scrollView = new ScrollView(context) {
              @Override
+diff --git a/TMessagesProj/src/main/java/org/telegram/ui/PhotoViewer.java b/TMessagesProj/src/main/java/org/telegram/ui/PhotoViewer.java
+index afb49ee..7ddc39d 100644
+--- a/TMessagesProj/src/main/java/org/telegram/ui/PhotoViewer.java
++++ b/TMessagesProj/src/main/java/org/telegram/ui/PhotoViewer.java
+@@ -14571,7 +14571,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
+             actionBarContainer.setSubtitle(subtitle, animated);
+ 
+             boolean isInvoice = newMessageObject.isInvoice();
+-            boolean noforwards = MessagesController.getInstance(currentAccount).isPeerNoForwards(newMessageObject.getDialogId()) || (newMessageObject.messageOwner != null && newMessageObject.messageOwner.noforwards) || newMessageObject.hasRevealedExtendedMedia();
++            boolean noforwards = (!org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++                && (MessagesController.getInstance(currentAccount).isPeerNoForwards(newMessageObject.getDialogId())
++                || newMessageObject.messageOwner != null && newMessageObject.messageOwner.noforwards))
++                || newMessageObject.hasRevealedExtendedMedia();
+             if (isVideo && !isLivePhoto) {
+                 bottomLayout.setVisibility(View.VISIBLE);
+                 bottomLayout.setTag(1);
+@@ -14808,7 +14811,9 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
+             if (DialogObject.isEncryptedDialog(currentDialogId) && !isEmbedVideo || noforwards) {
+                 setItemVisible(sendItem, false, false);
+             }
+-            if (isEmbedVideo || newMessageObject.messageOwner.ttl != 0 && newMessageObject.messageOwner.ttl < 60 * 60 || noforwards) {
++            if (isEmbedVideo || (!org.telegram.lumen.LumenConfig.allowSavingViewOnce()
++                    && newMessageObject.messageOwner.ttl != 0
++                    && newMessageObject.messageOwner.ttl < 60 * 60) || noforwards) {
+                 allowShare = false;
+                 galleryButton.setVisibility(View.GONE);
+                 galleryGap.setVisibility(View.GONE);
+@@ -15691,7 +15696,10 @@ public class PhotoViewer implements NotificationCenter.NotificationCenterDelegat
+                 return;
+             }
+             MessageObject newMessageObject = imagesArr.get(currentIndex);
+-            final boolean noforwards = newMessageObject != null && (MessagesController.getInstance(currentAccount).isPeerNoForwards(newMessageObject.getDialogId()) || (newMessageObject.messageOwner != null && newMessageObject.messageOwner.noforwards) || newMessageObject.hasRevealedExtendedMedia());
++            final boolean noforwards = newMessageObject != null && ((!org.telegram.lumen.LumenConfig.ignoreContentRestrictions()
++                && (MessagesController.getInstance(currentAccount).isPeerNoForwards(newMessageObject.getDialogId())
++                || newMessageObject.messageOwner != null && newMessageObject.messageOwner.noforwards))
++                || newMessageObject.hasRevealedExtendedMedia());
+             sameImage = init && currentMessageObject != null && currentMessageObject.getId() == newMessageObject.getId();
+             if (sameImage) {
+                 newMessageObject.putInDownloadsStore = currentMessageObject.putInDownloadsStore;
 diff --git a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java b/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
 index 21e77f9..cc9803d 100644
 --- a/TMessagesProj/src/main/java/org/telegram/ui/ProfileActivity.java
@@ -9362,3 +9815,20 @@ zKIP~uZj<i|6Fjy(Zie={F<sOK?|_6_6LCNeMnTf?`1p1aUBrV~&o6LOlf`0(KoMQU
 zi)D-2;2i`Rfjym=19|X@#w_N=ZH!kDuiiNN;-*~8i`$SZ;!*z~jz*x>Nr}`CHr)u+
 s8_Rlq&P0x^SIqVLa)u5vibvr82T0k$y|T(e8UO$Q07*qoM6N<$g8HEPX#fBK
 
+diff --git a/gradle.properties b/gradle.properties
+index 28e361e..ce9d03c 100644
+--- a/gradle.properties
++++ b/gradle.properties
+@@ -13,9 +13,9 @@
+ # http://www.gradle.org/docs/current/userguide/multi_project_builds.html#sec:decoupled_projects
+ # org.gradle.parallel=true
+ #Sat Mar 12 05:53:50 MSK 2016
+-APP_VERSION_CODE=7183
+-APP_VERSION_NAME=13.0.3
+-APP_PACKAGE=org.telegram.messenger
++APP_VERSION_CODE=7185
++APP_VERSION_NAME=1.5.0
++APP_PACKAGE=ru.tunexa.lumengram
+ IS_PRIVATE=false
+ RELEASE_KEY_PASSWORD=android
+ RELEASE_KEY_ALIAS=androidkey

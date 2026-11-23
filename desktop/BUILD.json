@@ -3,7 +3,7 @@
   "baseCommit": "fab79561cf8030eade9d0098bc438346b8c39261",
   "patch": "working-tree.patch",
   "instructions": "Check out baseCommit, apply working-tree.patch with git apply, then copy the contents of added/ into the checkout. Follow base-project build instructions and provide your own Telegram API build settings. Signing credentials and local build outputs are excluded.",
-  "releaseVersion": "1.4",
+  "releaseVersion": "1.5.0",
   "configuration": "Release",
   "productionLinkerOption": "/DEBUG:NONE",
   "buildNote": "Release compiled with MSVC and linked using LLD with /DEBUG:NONE. In the generated Telegram.vcxproj remove the 12 explicit lib_crl Object inputs already contained in lib_base.lib, set Release GenerateDebugInformation=false, then use MSBuild LinkToolExe=lld-link.exe and LinkToolPath to the linker directory. Provide the NDK LLVM bin directory on PATH. Verification also used a full Debug build.",
